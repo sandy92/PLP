@@ -516,6 +516,9 @@ public class ScannerTest {
 
         Scanner.Token token2 = scanner.nextToken();
         checkTokenValidity(RPAREN, 43, RPAREN.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
     }
 
     @Test
@@ -531,7 +534,434 @@ public class ScannerTest {
         checkTokenValidity(LPAREN, 0, LPAREN.getText(), token1);
 
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(RPAREN, 45, RPAREN.getText(), token2);
+        checkTokenValidity(RPAREN, 44, RPAREN.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
     }
 
+    // Operators
+    @Test
+    public void testOr() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "||";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OR, 0, OR.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(OR, 1, OR.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testAnd() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "&&";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(AND, 0, AND.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(AND, 1, AND.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testEqual() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "====";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(EQUAL, 0, EQUAL.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(EQUAL, 2, EQUAL.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testNotEqual() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "!=!=";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(NOTEQUAL, 0, NOTEQUAL.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(NOTEQUAL, 2, NOTEQUAL.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testLT() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<<";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(LT, 0, LT.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(LT, 1, LT.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testGT() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = ">>";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(GT, 0, GT.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(GT, 1, GT.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testLE() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<=<=";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(LE, 0, LE.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(LE, 2, LE.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testGE() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = ">=>=";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(GE, 0, GE.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(GE, 2, GE.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testLTEqualGTthrowsException() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<==>";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        thrown.expect(IllegalCharException.class);
+        thrown.expectMessage("Unexpected char encountered: '>' at Line=0, pos=3");
+        scanner.scan();
+    }
+
+    @Test
+    public void testPlus() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "++";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(PLUS, 0, PLUS.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(PLUS, 1, PLUS.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMinus() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "--";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(MINUS, 0, MINUS.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(MINUS, 1, MINUS.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testTimes() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "**";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(TIMES, 0, TIMES.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(TIMES, 1, TIMES.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testDiv() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "//";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(DIV, 0, DIV.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(DIV, 1, DIV.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMod() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "%%";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(MOD, 0, MOD.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(MOD, 1, MOD.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testNot() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "!!";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(NOT, 0, NOT.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(NOT, 1, NOT.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testNotEqualGT() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "!=>";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(NOTEQUAL, 0, NOTEQUAL.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(GT, 2, GT.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testArrow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "->->";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(ARROW, 0, ARROW.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(ARROW, 2, ARROW.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testBarArrow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "|->|->";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(BARARROW, 0, BARARROW.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(BARARROW, 3, BARARROW.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testAssign() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<-<-";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 0, ASSIGN.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 2, ASSIGN.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testAssignArrow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<-->";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 0, ASSIGN.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(ARROW, 2, ARROW.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testAssignBarArrow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<-|->";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 0, ASSIGN.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(BARARROW, 2, BARARROW.getText(), token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testNotEqualThrowsException() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "!==";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        thrown.expect(IllegalCharException.class);
+        thrown.expectMessage("Invalid Token - encountered EOF after '='");
+        scanner.scan();
+    }
+
+    @Test
+    public void testGEThrowsException() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = ">==";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        thrown.expect(IllegalCharException.class);
+        thrown.expectMessage("Invalid Token - encountered EOF after '='");
+        scanner.scan();
+    }
+
+    @Test
+    public void testLEThrowsException() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "<==";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        thrown.expect(IllegalCharException.class);
+        thrown.expectMessage("Invalid Token - encountered EOF after '='");
+        scanner.scan();
+    }
 }

@@ -40,7 +40,7 @@ public class Scanner {
      */
     private static enum State {
         // TODO
-        START, IN_INT_LIT
+        START, GOT_NOT, GOT_MINUS, GOT_LT, GOT_EQUAL, GOT_GT, GOT_OR, GOT_OR_MINUS, GOT_DIV, IN_COMMENT, IN_COMMENT_MIGHT_CLOSE, IN_INT_LIT
     }
 
     /*
@@ -249,6 +249,50 @@ public class Scanner {
                                 tokens.add(new Token(Kind.INT_LIT, startPos, 1));
                                 pos++;
                                 break;
+                            case '%':
+                                tokens.add(new Token(Kind.MOD, startPos, 1));
+                                pos++;
+                                break;
+                            case '&':
+                                tokens.add(new Token(Kind.AND, startPos, 1));
+                                pos++;
+                                break;
+                            case '*':
+                                tokens.add(new Token(Kind.TIMES, startPos, 1));
+                                pos++;
+                                break;
+                            case '+':
+                                tokens.add(new Token(Kind.PLUS, startPos, 1));
+                                pos++;
+                                break;
+                            case '!':
+                                state = State.GOT_NOT;
+                                pos++;
+                                break;
+                            case '-':
+                                state = State.GOT_MINUS;
+                                pos++;
+                                break;
+                            case '<':
+                                state = State.GOT_LT;
+                                pos++;
+                                break;
+                            case '=':
+                                state = State.GOT_EQUAL;
+                                pos++;
+                                break;
+                            case '>':
+                                state = State.GOT_GT;
+                                pos++;
+                                break;
+                            case '|':
+                                state = State.GOT_OR;
+                                pos++;
+                                break;
+                            case '/':
+                                state = State.GOT_DIV;
+                                pos++;
+                                break;
                             default:
                                 if (Character.isWhitespace(ch)) {
                                     pos++;
@@ -274,6 +318,96 @@ public class Scanner {
                             state = State.START;
                         }
                         break;
+                    case GOT_NOT:
+                        if (ch == '=') {
+                            pos++;
+                            tokens.add(new Token(Kind.NOTEQUAL, startPos, 2));
+                        } else {
+                            tokens.add(new Token(Kind.NOT, startPos, 1));
+                        }
+                        state = State.START;
+                        break;
+                    case GOT_MINUS:
+                        if (ch == '>') {
+                            pos++;
+                            tokens.add(new Token(Kind.ARROW, startPos, 2));
+                        } else {
+                            tokens.add(new Token(Kind.MINUS, startPos, 1));
+                        }
+                        state = State.START;
+                        break;
+                    case GOT_LT:
+                        if (ch == '-') {
+                            pos++;
+                            tokens.add(new Token(Kind.ASSIGN, startPos, pos - startPos));
+                        } else if (ch == '=') {
+                            pos++;
+                            tokens.add(new Token(Kind.LE, startPos, pos - startPos));
+                        } else {
+                            tokens.add(new Token(Kind.LT, startPos, pos - startPos));
+                        }
+                        state = State.START;
+                        break;
+                    case GOT_EQUAL:
+                        if (ch == '=') {
+                            pos++;
+                            tokens.add(new Token(Kind.EQUAL, startPos, 2));
+                            state = State.START;
+                        } else {
+                            throw new IllegalCharException("Scanner :: Unexpected char encountered: '" + ch + "' at Line=" + currentLineNumber + ", pos=" + (pos - lineStartPos) + "");
+                        }
+                        break;
+                    case GOT_GT:
+                        if (ch == '=') {
+                            pos++;
+                            tokens.add(new Token(Kind.GE, startPos, pos - startPos));
+                        } else {
+                            tokens.add(new Token(Kind.GT, startPos, pos - startPos));
+                        }
+                        state = State.START;
+                        break;
+                    case GOT_OR:
+                        if (ch == '-') {
+                            state = State.GOT_OR_MINUS;
+                            pos++;
+                        } else {
+                            tokens.add(new Token(Kind.OR, startPos, 1));
+                            state = State.START;
+                        }
+                        break;
+                    case GOT_OR_MINUS:
+                        if (ch == '>') {
+                            pos++;
+                            tokens.add(new Token(Kind.BARARROW, startPos, 3));
+                        } else {
+                            tokens.add(new Token(Kind.OR, startPos, 1));
+                            tokens.add(new Token(Kind.MINUS, startPos + 1, 1));
+                        }
+                        state = State.START;
+                        break;
+                    case GOT_DIV:
+                        if (ch == '*') {
+                            pos++;
+                            state = State.IN_COMMENT;
+                        } else {
+                            tokens.add(new Token(Kind.DIV, startPos, 1));
+                            state = State.START;
+                        }
+                        break;
+                    case IN_COMMENT:
+                        if (ch == '*') {
+                            state = State.IN_COMMENT_MIGHT_CLOSE;
+                        }
+                        pos++;
+                        break;
+                    case IN_COMMENT_MIGHT_CLOSE:
+                        if (ch == '/') {
+                            state = State.START;
+                        } else {
+                            state = State.IN_COMMENT;
+                        }
+                        pos++;
+                        break;
                     default:
                         assert false;
                 }
@@ -295,9 +429,42 @@ public class Scanner {
                 tokens.add(token);
                 tokens.add(new Token(Kind.EOF, pos, 0));
                 break;
+            case GOT_NOT:
+                tokens.add(new Token(Kind.NOT, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_MINUS:
+                tokens.add(new Token(Kind.MINUS, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_LT:
+                tokens.add(new Token(Kind.LT, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_EQUAL:
+                throw new IllegalCharException("Scanner :: Invalid Token - encountered EOF after '='");
+            case GOT_GT:
+                tokens.add(new Token(Kind.GT, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_OR:
+                tokens.add(new Token(Kind.OR, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_OR_MINUS:
+                tokens.add(new Token(Kind.OR, startPos, 1));
+                tokens.add(new Token(Kind.MINUS, startPos + 1, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case GOT_DIV:
+                tokens.add(new Token(Kind.DIV, startPos, 1));
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
             case START:
                 tokens.add(new Token(Kind.EOF, pos, 0));
                 break;
+            case IN_COMMENT:
+            case IN_COMMENT_MIGHT_CLOSE:
             default:
                 // Used for cases where file ends abruptly. E.g., When comment tag is opened but not closed
                 throw new IllegalCharException("Scanner :: Invalid Token - encountered EOF");
