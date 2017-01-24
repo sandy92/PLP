@@ -1,18 +1,17 @@
 package cop5556sp17;
 
-import static cop5556sp17.Scanner.Kind.*;
-import static org.junit.Assert.*;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Objects;
+
+import static cop5556sp17.Scanner.Kind.*;
+import static org.junit.Assert.*;
 
 public class ScannerTest {
 
@@ -72,6 +71,29 @@ public class ScannerTest {
         //check that the scanner has inserted an EOF token at the end
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(Scanner.Kind.EOF, token3.kind);
+    }
+
+    @Test
+    public void testComma() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = ",,,";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+        Scanner.Token token = scanner.nextToken();
+        checkTokenValidity(COMMA, 0, COMMA.getText(), token);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(COMMA, 1, COMMA.getText(), token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(COMMA, 2, COMMA.getText(), token2);
+
+        //check that the scanner has inserted an EOF token at the end
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
     }
 
     @Test
@@ -209,6 +231,155 @@ public class ScannerTest {
         Scanner scanner = new Scanner(input);
         thrown.expect(IllegalNumberException.class);
         scanner.scan();
+    }
+
+    @Test
+    public void testZero() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "0";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+        Scanner.Token token = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 0, "0", token);
+
+        Scanner.Token token1 = scanner.nextToken();
+        assertEquals(EOF, token1.kind);
+    }
+
+    @Test
+    public void testMultipleZeros() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "00000";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+        for (int i = 0; i < 5; i++) {
+            Scanner.Token token = scanner.nextToken();
+            checkTokenValidity(INT_LIT, i, "0", token);
+        }
+
+        Scanner.Token token1 = scanner.nextToken();
+        assertEquals(EOF, token1.kind);
+    }
+
+    @Test
+    public void testDigit() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "4";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+
+        Scanner.Token token = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 0, "4", token);
+
+        Scanner.Token token1 = scanner.nextToken();
+        assertEquals(EOF, token1.kind);
+    }
+
+    @Test
+    public void testMultipleDigits() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "4931";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+
+        Scanner.Token token = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 0, "4931", token);
+
+        Scanner.Token token1 = scanner.nextToken();
+        assertEquals(EOF, token1.kind);
+    }
+
+    @Test
+    public void testMultipleIntLit() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "0049310\n582";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+
+        Scanner.Token token = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 0, "0", token);
+
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 1, "0", token1);
+
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 2, "49310", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 8, "582", token3);
+
+        Scanner.Token token4 = scanner.nextToken();
+        assertEquals(EOF, token4.kind);
+    }
+
+    @Test
+    public void testGetLinePos() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "23748 2837;\n23478 753426 283754;\n 328 457 829437;";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        //get the first token and check its kind, position, and contents
+
+        Scanner.Token token;
+        Scanner.LinePos linePos;
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 0), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 6), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 10), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 0), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 6), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 13), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 19), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 1), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 5), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 9), linePos);
+
+        token = scanner.nextToken();
+        linePos = scanner.getLinePos(token);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 15), linePos);
+
+        token = scanner.nextToken();
+        assertEquals(EOF, token.kind);
     }
 
 

@@ -40,7 +40,7 @@ public class Scanner {
      */
     private static enum State {
         // TODO
-        START, IN_COMMENT
+        START, IN_INT_LIT
     }
 
     /*
@@ -120,7 +120,23 @@ public class Scanner {
         //returns a LinePos object representing the line and column of this Token
         LinePos getLinePos() {
             //TODO IMPLEMENT THIS
-            return null;
+            if (lineStartPosArray != null && lineStartPosArray.size() != 0) {
+                int line = Collections.binarySearch(lineStartPosArray, pos);
+                if (line < 0) {
+                    if (line == -1) {
+                        line = 0;
+                    } else {
+                        // see definition of Collections.binarySearch
+                        // We need the index(i.e., line) smaller than the insertion point to determine the line number
+                        line = (-(line + 1)) - 1;
+                    }
+                }
+                int posInLine = pos - lineStartPosArray.get(line);
+
+                return new LinePos(line, posInLine);
+            } else {
+                return null;
+            }
         }
 
         Token(Kind kind, int pos, int length) {
@@ -138,8 +154,7 @@ public class Scanner {
          * @throws NumberFormatException
          */
         public int intVal() throws NumberFormatException {
-            //TODO IMPLEMENT THIS
-            return 0;
+            return Integer.parseInt(getText());
         }
 
         @Override
@@ -189,7 +204,6 @@ public class Scanner {
         State state = State.START;
 
         if (totalCharsLength > 0) {
-
             int lineStartPos = 0;
             int currentLineNumber = 0;
 
@@ -198,59 +212,95 @@ public class Scanner {
             while (pos < totalCharsLength) {
                 ch = chars.charAt(pos);
 
-                if (ch == '\n') {
-                    lineStartPosArray.add(lineStartPos);
-                    currentLineNumber++;
-                    lineStartPos = ++pos;
-                } else if (Character.isWhitespace(ch)) {
-                    pos++;
-                } else {
-                    switch (state) {
-                        case START:
-                            startPos = pos;
-                            switch (ch) {
-                                case ';':
-                                    tokens.add(new Token(Kind.SEMI, startPos, 1));
+                switch (state) {
+                    case START:
+                        startPos = pos;
+                        switch (ch) {
+                            case '\n':
+                                lineStartPosArray.add(lineStartPos);
+                                currentLineNumber++;
+                                lineStartPos = ++pos;
+                                break;
+                            case ';':
+                                tokens.add(new Token(Kind.SEMI, startPos, 1));
+                                pos++;
+                                break;
+                            case ',':
+                                tokens.add(new Token(Kind.COMMA, startPos, 1));
+                                pos++;
+                                break;
+                            case '(':
+                                tokens.add(new Token(Kind.LPAREN, startPos, 1));
+                                pos++;
+                                break;
+                            case ')':
+                                tokens.add(new Token(Kind.RPAREN, startPos, 1));
+                                pos++;
+                                break;
+                            case '{':
+                                tokens.add(new Token(Kind.LBRACE, startPos, 1));
+                                pos++;
+                                break;
+                            case '}':
+                                tokens.add(new Token(Kind.RBRACE, startPos, 1));
+                                pos++;
+                                break;
+                            case '0':
+                                tokens.add(new Token(Kind.INT_LIT, startPos, 1));
+                                pos++;
+                                break;
+                            default:
+                                if (Character.isWhitespace(ch)) {
                                     pos++;
-                                    break;
-                                case ',':
-                                    tokens.add(new Token(Kind.COMMA, startPos, 1));
+                                } else if (Character.isDigit(ch)) {
+                                    state = State.IN_INT_LIT;
                                     pos++;
-                                    break;
-                                case '(':
-                                    tokens.add(new Token(Kind.LPAREN, startPos, 1));
-                                    pos++;
-                                    break;
-                                case ')':
-                                    tokens.add(new Token(Kind.RPAREN, startPos, 1));
-                                    pos++;
-                                    break;
-                                case '{':
-                                    tokens.add(new Token(Kind.LBRACE, startPos, 1));
-                                    pos++;
-                                    break;
-                                case '}':
-                                    tokens.add(new Token(Kind.RBRACE, startPos, 1));
-                                    pos++;
-                                    break;
-                                default:
+                                } else {
                                     throw new IllegalCharException("Scanner :: Unexpected char encountered: '" + ch + "' at Line=" + currentLineNumber + ", pos=" + (pos - lineStartPos) + "");
+                                }
+                        }
+                        break;
+                    case IN_INT_LIT:
+                        if (Character.isDigit(ch)) {
+                            pos++;
+                        } else {
+                            Token token = new Token(Kind.INT_LIT, startPos, pos - startPos);
+                            try {
+                                Integer value = token.intVal();
+                            } catch (NumberFormatException e) {
+                                throw new IllegalNumberException("Scanner :: Unable to parse integer from token '" + token.getText() + "' :: " + e.getMessage());
                             }
-                            break;
-                        default:
-                            assert false;
-                    }
+                            tokens.add(token);
+                            state = State.START;
+                        }
+                        break;
+                    default:
+                        assert false;
                 }
             }
 
             lineStartPosArray.add(lineStartPos);
         }
 
-        if (state == State.START) {
-            tokens.add(new Token(Kind.EOF, pos, 0));
-        } else {
-            // Used for cases where file ends abruptly. E.g., When comment tag is opened but not closed
-            throw new IllegalCharException("Scanner :: Invalid Token - encountered EOF");
+
+        // Cases where DFA does not end in State.START after processing the current char
+        switch (state) {
+            case IN_INT_LIT:
+                Token token = new Token(Kind.INT_LIT, startPos, pos - startPos);
+                try {
+                    Integer value = token.intVal();
+                } catch (NumberFormatException e) {
+                    throw new IllegalNumberException("Scanner :: Unable to parse integer from token '" + token.getText() + "' :: " + e.getMessage());
+                }
+                tokens.add(token);
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            case START:
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
+            default:
+                // Used for cases where file ends abruptly. E.g., When comment tag is opened but not closed
+                throw new IllegalCharException("Scanner :: Invalid Token - encountered EOF");
         }
 
         this.lineStartPosArray = Collections.unmodifiableList(lineStartPosArray);
