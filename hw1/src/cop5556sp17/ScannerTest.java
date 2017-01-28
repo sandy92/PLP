@@ -382,13 +382,6 @@ public class ScannerTest {
         assertEquals(EOF, token.kind);
     }
 
-
-    // TODO "single token" tests - should contain test cases where input results in a single token
-    // TODO "multiple tokens in a single line" tests - should contain test cases where input results in multiple tokens in single line
-    // TODO "multiple lines" tests
-    // TODO "negative tests"
-
-
     // Single Line Inputs
     @Test
     public void testSingleLineInputForSpaces() throws IllegalCharException, IllegalNumberException {
@@ -480,16 +473,39 @@ public class ScannerTest {
         assertEquals(EOF, token.kind);
     }
 
+    /*@Test
+    public void testUnclosedSingleLineComments() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "*//* this is an unclosed single line comment";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        thrown.expect(IllegalCharException.class);
+        thrown.expectMessage("encountered EOF");
+        scanner.scan();
+    }*/
+
     @Test
     public void testUnclosedSingleLineComments() throws IllegalCharException, IllegalNumberException {
         //input string
         String input = "/* this is an unclosed single line comment";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        Scanner.Token token = scanner.nextToken();
+        assertEquals(EOF, token.kind);
+    }
+
+    /*@Test
+    public void testUnclosedMultiLineComments() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "*//* this is an unclosed \n multi line comment";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
         thrown.expect(IllegalCharException.class);
         thrown.expectMessage("encountered EOF");
         scanner.scan();
-    }
+    }*/
 
     @Test
     public void testUnclosedMultiLineComments() throws IllegalCharException, IllegalNumberException {
@@ -497,9 +513,10 @@ public class ScannerTest {
         String input = "/* this is an unclosed \n multi line comment";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
-        thrown.expect(IllegalCharException.class);
-        thrown.expectMessage("encountered EOF");
         scanner.scan();
+
+        Scanner.Token token = scanner.nextToken();
+        assertEquals(EOF, token.kind);
     }
 
     @Test
@@ -1305,8 +1322,6 @@ public class ScannerTest {
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
     }
-
-    // TODO tests for 'Capitalised keywords are idents'
 
     @Test
     public void testI() throws IllegalCharException, IllegalNumberException {
@@ -2294,5 +2309,177 @@ public class ScannerTest {
 
         Scanner.Token token4 = scanner.nextToken();
         assertEquals(EOF, token4.kind);
+    }
+
+    @Test
+    public void testCode() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j);\n\n    };\n\n    i <- i + 1;\n\n}";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "i", token1);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 2, "<-", token2);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token3 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 5, "0", token3);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token4 = scanner.nextToken();
+        checkTokenValidity(SEMI, 6, ";", token4);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token5 = scanner.nextToken();
+        checkTokenValidity(KW_WHILE, 9, "while", token5);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token6 = scanner.nextToken();
+        checkTokenValidity(LPAREN, 14, "(", token6);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token7 = scanner.nextToken();
+        checkTokenValidity(IDENT, 15, "i", token7);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token8 = scanner.nextToken();
+        checkTokenValidity(LT, 17, "<", token8);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token9 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 19, "10", token9);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token10 = scanner.nextToken();
+        checkTokenValidity(RPAREN, 21, ")", token10);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token11 = scanner.nextToken();
+        checkTokenValidity(LBRACE, 22, "{", token11);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token12 = scanner.nextToken();
+        checkTokenValidity(KW_IF, 29, "if", token12);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token13 = scanner.nextToken();
+        checkTokenValidity(LPAREN, 31, "(", token13);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token14 = scanner.nextToken();
+        checkTokenValidity(IDENT, 33, "i", token14);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token15 = scanner.nextToken();
+        checkTokenValidity(MOD, 35, "%", token15);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token16 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 37, "2", token16);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token17 = scanner.nextToken();
+        checkTokenValidity(EQUAL, 39, "==", token17);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token18 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 42, "0", token18);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token19 = scanner.nextToken();
+        checkTokenValidity(RPAREN, 43, ")", token19);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token20 = scanner.nextToken();
+        checkTokenValidity(LBRACE, 44, "{", token20);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token21 = scanner.nextToken();
+        checkTokenValidity(IDENT, 55, "j", token21);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token22 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 57, "<-", token22);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token23 = scanner.nextToken();
+        checkTokenValidity(IDENT, 60, "i", token23);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token24 = scanner.nextToken();
+        checkTokenValidity(DIV, 62, "/", token24);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token25 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 64, "2", token25);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token26 = scanner.nextToken();
+        checkTokenValidity(SEMI, 65, ";", token26);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token27 = scanner.nextToken();
+        checkTokenValidity(KW_SHOW, 77, "show", token27);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token28 = scanner.nextToken();
+        checkTokenValidity(LPAREN, 81, "(", token28);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token29 = scanner.nextToken();
+        checkTokenValidity(IDENT, 82, "j", token29);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token30 = scanner.nextToken();
+        checkTokenValidity(RPAREN, 83, ")", token30);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token31 = scanner.nextToken();
+        checkTokenValidity(SEMI, 84, ";", token31);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token32 = scanner.nextToken();
+        checkTokenValidity(RBRACE, 91, "}", token32);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token33 = scanner.nextToken();
+        checkTokenValidity(SEMI, 92, ";", token33);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token34 = scanner.nextToken();
+        checkTokenValidity(IDENT, 99, "i", token34);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token35 = scanner.nextToken();
+        checkTokenValidity(ASSIGN, 101, "<-", token35);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token36 = scanner.nextToken();
+        checkTokenValidity(IDENT, 104, "i", token36);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token37 = scanner.nextToken();
+        checkTokenValidity(PLUS, 106, "+", token37);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token38 = scanner.nextToken();
+        checkTokenValidity(INT_LIT, 108, "1", token38);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token39 = scanner.nextToken();
+        checkTokenValidity(SEMI, 109, ";", token39);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token40 = scanner.nextToken();
+        checkTokenValidity(RBRACE, 112, "}", token40);
+
+        Scanner.Token token41 = scanner.nextToken();
+        assertEquals(EOF, token41.kind);
     }
 }

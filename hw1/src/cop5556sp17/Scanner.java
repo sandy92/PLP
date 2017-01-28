@@ -39,8 +39,9 @@ public class Scanner {
      * States inside the DFA for the Scanner
      */
     private static enum State {
-        // TODO
-        START, GOT_NOT, GOT_MINUS, GOT_LT, GOT_EQUAL, GOT_GT, GOT_OR, GOT_OR_MINUS, GOT_DIV, IN_COMMENT, IN_COMMENT_MIGHT_CLOSE, IN_IDENT, GOT_B, GOT_C, GOT_F, GOT_G, GOT_H, GOT_I, GOT_M, GOT_S, GOT_T, GOT_U, GOT_W, GOT_X, GOT_Y, IN_INT_LIT
+        START, GOT_NOT, GOT_MINUS, GOT_LT, GOT_EQUAL, GOT_GT, GOT_OR, GOT_OR_MINUS, GOT_DIV, IN_COMMENT,
+        IN_COMMENT_MIGHT_CLOSE, IN_IDENT, GOT_B, GOT_C, GOT_F, GOT_G, GOT_H, GOT_I, GOT_M, GOT_S, GOT_T,
+        GOT_U, GOT_W, GOT_X, GOT_Y, IN_INT_LIT
     }
 
     /*
@@ -119,7 +120,6 @@ public class Scanner {
 
         //returns a LinePos object representing the line and column of this Token
         LinePos getLinePos() {
-            //TODO IMPLEMENT THIS
             if (lineStartPosArray != null && lineStartPosArray.size() != 0) {
                 int line = Collections.binarySearch(lineStartPosArray, pos);
                 if (line < 0) {
@@ -203,7 +203,6 @@ public class Scanner {
      * @throws IllegalNumberException
      */
     public Scanner scan() throws IllegalCharException, IllegalNumberException {
-        //TODO IMPLEMENT THIS!!!!
         List<Integer> lineStartPosArray = new ArrayList<>();
 
         int pos = 0;
@@ -791,9 +790,10 @@ public class Scanner {
                 tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
                 tokens.add(new Token(Kind.EOF, pos, 0));
                 break;
-            // Edge case handling for Comments is same as that of unexpected EOF errors
             case IN_COMMENT:
             case IN_COMMENT_MIGHT_CLOSE:
+                tokens.add(new Token(Kind.EOF, pos, 0));
+                break;
             default:
                 // Used for cases where file ends abruptly. E.g., When comment tag is opened but not closed
                 throw new IllegalCharException("Scanner :: Invalid Token - encountered EOF");
@@ -822,16 +822,10 @@ public class Scanner {
      * Return the next token in the token list without updating the state.
      * (So the following call to next will return the same token.)
      */
-    /*public Token peek() {
-        if (tokenNum >= tokens.size())
-            return null;
-        return tokens.get(tokenNum + 1); // TODO Decide whether this implementation is correct or not, it should ideally be tokens.get(tokenNum + 1);
-    }*/
-
     public Token peek() {
         if (tokenNum >= tokens.size())
             return null;
-        return tokens.get(tokenNum); // TODO Keep only one peek function in code, after decide the correct implementation
+        return tokens.get(tokenNum);
     }
 
 
@@ -846,7 +840,6 @@ public class Scanner {
      */
     public LinePos getLinePos(Token t) {
         return t.getLinePos();
-//        return null; // TODO remove
     }
 
 
