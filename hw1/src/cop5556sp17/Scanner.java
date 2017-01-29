@@ -1,9 +1,6 @@
 package cop5556sp17;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Scanner {
     /**
@@ -40,8 +37,7 @@ public class Scanner {
      */
     private static enum State {
         START, GOT_NOT, GOT_MINUS, GOT_LT, GOT_EQUAL, GOT_GT, GOT_OR, GOT_OR_MINUS, GOT_DIV, IN_COMMENT,
-        IN_COMMENT_MIGHT_CLOSE, IN_IDENT, GOT_B, GOT_C, GOT_F, GOT_G, GOT_H, GOT_I, GOT_M, GOT_S, GOT_T,
-        GOT_U, GOT_W, GOT_X, GOT_Y, IN_INT_LIT
+        IN_COMMENT_MIGHT_CLOSE, IN_IDENT, IN_INT_LIT
     }
 
     /*
@@ -184,6 +180,7 @@ public class Scanner {
 
         this.chars = chars;
         tokens = new ArrayList<Token>();
+        reservedWords = getReservedWords();
     }
 
     private boolean isIdentifierStart(char ch) {
@@ -192,6 +189,37 @@ public class Scanner {
 
     private boolean isIdentifierPart(char ch) {
         return (isIdentifierStart(ch) || Character.isDigit(ch));
+    }
+
+    private Map<String, Kind> getReservedWords() {
+        HashMap<String, Kind> reservedWords = new HashMap<>();
+
+        reservedWords.put("blur", Kind.OP_BLUR);
+        reservedWords.put("boolean", Kind.KW_BOOLEAN);
+        reservedWords.put("convolve", Kind.OP_CONVOLVE);
+        reservedWords.put("false", Kind.KW_FALSE);
+        reservedWords.put("file", Kind.KW_FILE);
+        reservedWords.put("frame", Kind.KW_FRAME);
+        reservedWords.put("gray", Kind.OP_GRAY);
+        reservedWords.put("height", Kind.OP_HEIGHT);
+        reservedWords.put("hide", Kind.KW_HIDE);
+        reservedWords.put("if", Kind.KW_IF);
+        reservedWords.put("image", Kind.KW_IMAGE);
+        reservedWords.put("integer", Kind.KW_INTEGER);
+        reservedWords.put("move", Kind.KW_MOVE);
+        reservedWords.put("scale", Kind.KW_SCALE);
+        reservedWords.put("screenheight", Kind.KW_SCREENHEIGHT);
+        reservedWords.put("screenwidth", Kind.KW_SCREENWIDTH);
+        reservedWords.put("show", Kind.KW_SHOW);
+        reservedWords.put("sleep", Kind.OP_SLEEP);
+        reservedWords.put("true", Kind.KW_TRUE);
+        reservedWords.put("url", Kind.KW_URL);
+        reservedWords.put("while", Kind.KW_WHILE);
+        reservedWords.put("width", Kind.OP_WIDTH);
+        reservedWords.put("xloc", Kind.KW_XLOC);
+        reservedWords.put("yloc", Kind.KW_YLOC);
+
+        return Collections.unmodifiableMap(reservedWords);
     }
 
 
@@ -298,58 +326,6 @@ public class Scanner {
                                 break;
                             case '/':
                                 state = State.GOT_DIV;
-                                pos++;
-                                break;
-                            case 'b':
-                                state = State.GOT_B;
-                                pos++;
-                                break;
-                            case 'c':
-                                state = State.GOT_C;
-                                pos++;
-                                break;
-                            case 'f':
-                                state = State.GOT_F;
-                                pos++;
-                                break;
-                            case 'g':
-                                state = State.GOT_G;
-                                pos++;
-                                break;
-                            case 'h':
-                                state = State.GOT_H;
-                                pos++;
-                                break;
-                            case 'i':
-                                state = State.GOT_I;
-                                pos++;
-                                break;
-                            case 'm':
-                                state = State.GOT_M;
-                                pos++;
-                                break;
-                            case 's':
-                                state = State.GOT_S;
-                                pos++;
-                                break;
-                            case 't':
-                                state = State.GOT_T;
-                                pos++;
-                                break;
-                            case 'u':
-                                state = State.GOT_U;
-                                pos++;
-                                break;
-                            case 'w':
-                                state = State.GOT_W;
-                                pos++;
-                                break;
-                            case 'x':
-                                state = State.GOT_X;
-                                pos++;
-                                break;
-                            case 'y':
-                                state = State.GOT_Y;
                                 pos++;
                                 break;
                             default:
@@ -474,247 +450,15 @@ public class Scanner {
                         if (isIdentifierPart(ch)) {
                             pos++;
                         } else {
-                            tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
-                            state = State.START;
-                        }
-                        break;
-                    case GOT_B:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("blur")) {
-                            tokens.add(new Token(Kind.OP_BLUR, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else if (((startPos + 7) <= totalCharsLength) && chars.substring(startPos, startPos + 7).equals("boolean")) {
-                            tokens.add(new Token(Kind.KW_BOOLEAN, startPos, 7));
-                            state = State.START;
-                            pos = startPos + 7;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
+                            String identifier = chars.substring(startPos, pos);
+                            Kind kind;
+                            if (reservedWords.containsKey(identifier)) {
+                                kind = reservedWords.get(identifier);
                             } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
+                                kind = Kind.IDENT;
                             }
-                        }
-                        break;
-                    case GOT_C:
-                        if (((startPos + 8) <= totalCharsLength) && chars.substring(startPos, startPos + 8).equals("convolve")) {
-                            tokens.add(new Token(Kind.OP_CONVOLVE, startPos, 8));
+                            tokens.add(new Token(kind, startPos, pos - startPos));
                             state = State.START;
-                            pos = startPos + 8;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_F:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("file")) {
-                            tokens.add(new Token(Kind.KW_FILE, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("false")) {
-                            tokens.add(new Token(Kind.KW_FALSE, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("frame")) {
-                            tokens.add(new Token(Kind.KW_FRAME, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_G:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("gray")) {
-                            tokens.add(new Token(Kind.OP_GRAY, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_H:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("hide")) {
-                            tokens.add(new Token(Kind.KW_HIDE, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else if (((startPos + 6) <= totalCharsLength) && chars.substring(startPos, startPos + 6).equals("height")) {
-                            tokens.add(new Token(Kind.OP_HEIGHT, startPos, 6));
-                            state = State.START;
-                            pos = startPos + 6;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_I:
-                        if (((startPos + 2) <= totalCharsLength) && chars.substring(startPos, startPos + 2).equals("if")) {
-                            tokens.add(new Token(Kind.KW_IF, startPos, 2));
-                            state = State.START;
-                            pos = startPos + 2;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("image")) {
-                            tokens.add(new Token(Kind.KW_IMAGE, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else if (((startPos + 7) <= totalCharsLength) && chars.substring(startPos, startPos + 7).equals("integer")) {
-                            tokens.add(new Token(Kind.KW_INTEGER, startPos, 7));
-                            state = State.START;
-                            pos = startPos + 7;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_M:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("move")) {
-                            tokens.add(new Token(Kind.KW_MOVE, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_S:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("show")) {
-                            tokens.add(new Token(Kind.KW_SHOW, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("sleep")) {
-                            tokens.add(new Token(Kind.OP_SLEEP, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("scale")) {
-                            tokens.add(new Token(Kind.KW_SCALE, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else if (((startPos + 11) <= totalCharsLength) && chars.substring(startPos, startPos + 11).equals("screenwidth")) {
-                            tokens.add(new Token(Kind.KW_SCREENWIDTH, startPos, 11));
-                            state = State.START;
-                            pos = startPos + 11;
-                        } else if (((startPos + 12) <= totalCharsLength) && chars.substring(startPos, startPos + 12).equals("screenheight")) {
-                            tokens.add(new Token(Kind.KW_SCREENHEIGHT, startPos, 12));
-                            state = State.START;
-                            pos = startPos + 12;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_T:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("true")) {
-                            tokens.add(new Token(Kind.KW_TRUE, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_U:
-                        if (((startPos + 3) <= totalCharsLength) && chars.substring(startPos, startPos + 3).equals("url")) {
-                            tokens.add(new Token(Kind.KW_URL, startPos, 3));
-                            state = State.START;
-                            pos = startPos + 3;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_W:
-                        if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("while")) {
-                            tokens.add(new Token(Kind.KW_WHILE, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else if (((startPos + 5) <= totalCharsLength) && chars.substring(startPos, startPos + 5).equals("width")) {
-                            tokens.add(new Token(Kind.OP_WIDTH, startPos, 5));
-                            state = State.START;
-                            pos = startPos + 5;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_X:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("xloc")) {
-                            tokens.add(new Token(Kind.KW_XLOC, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
-                        }
-                        break;
-                    case GOT_Y:
-                        if (((startPos + 4) <= totalCharsLength) && chars.substring(startPos, startPos + 4).equals("yloc")) {
-                            tokens.add(new Token(Kind.KW_YLOC, startPos, 4));
-                            state = State.START;
-                            pos = startPos + 4;
-                        } else {
-                            if (isIdentifierPart(ch)) {
-                                pos++;
-                                state = State.IN_IDENT;
-                            } else {
-                                tokens.add(new Token(Kind.IDENT, startPos, 1));
-                                state = State.START;
-                            }
                         }
                         break;
                     default:
@@ -772,22 +516,15 @@ public class Scanner {
             case START:
                 tokens.add(new Token(Kind.EOF, pos, 0));
                 break;
-            // Edge case handling of letters is same as that of idents
-            case GOT_B:
-            case GOT_C:
-            case GOT_F:
-            case GOT_G:
-            case GOT_H:
-            case GOT_I:
-            case GOT_M:
-            case GOT_S:
-            case GOT_T:
-            case GOT_U:
-            case GOT_W:
-            case GOT_X:
-            case GOT_Y:
             case IN_IDENT:
-                tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
+                String identifier = chars.substring(startPos, pos);
+                Kind kind;
+                if (reservedWords.containsKey(identifier)) {
+                    kind = reservedWords.get(identifier);
+                } else {
+                    kind = Kind.IDENT;
+                }
+                tokens.add(new Token(kind, startPos, pos - startPos));
                 tokens.add(new Token(Kind.EOF, pos, 0));
                 break;
             case IN_COMMENT:
@@ -805,6 +542,7 @@ public class Scanner {
 
 
     final ArrayList<Token> tokens;
+    final Map<String, Kind> reservedWords;
     final String chars;
     int tokenNum;
 

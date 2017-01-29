@@ -1018,7 +1018,23 @@ public class ScannerTest {
     @Test
     public void testBlur() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "blurblur";
+        String input = "blur";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_BLUR, 0, "blur", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleBlur() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "blur blur";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1029,7 +1045,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_BLUR, 4, "blur", token2);
+        checkTokenValidity(OP_BLUR, 5, "blur", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testBlurBlur() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "blurblur";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "blurblur", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1038,7 +1070,23 @@ public class ScannerTest {
     @Test
     public void testBoolean() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "booleanboolean";
+        String input = "boolean";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_BOOLEAN, 0, "boolean", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleBoolean() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "boolean boolean";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1049,7 +1097,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_BOOLEAN, 7, "boolean", token2);
+        checkTokenValidity(KW_BOOLEAN, 8, "boolean", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testBooleanBoolean() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "booleanboolean";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "booleanboolean", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1090,7 +1154,23 @@ public class ScannerTest {
     @Test
     public void testConvolve() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "convolveconvolve";
+        String input = "convolve";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_CONVOLVE, 0, "convolve", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleConvolve() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "convolve convolve";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1101,7 +1181,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_CONVOLVE, 8, "convolve", token2);
+        checkTokenValidity(OP_CONVOLVE, 9, "convolve", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testConvolveConvolve() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "convolveconvolve";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "convolveconvolve", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1142,7 +1238,23 @@ public class ScannerTest {
     @Test
     public void testFalse() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "falsefalse";
+        String input = "false";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_FALSE, 0, "false", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleFalse() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "false false";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1153,7 +1265,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_FALSE, 5, "false", token2);
+        checkTokenValidity(KW_FALSE, 6, "false", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testFalseFalse() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "falsefalse";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "falsefalse", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1162,7 +1290,23 @@ public class ScannerTest {
     @Test
     public void testFile() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "filefile";
+        String input = "file";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_FILE, 0, "file", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleFile() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "file file";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1173,7 +1317,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_FILE, 4, "file", token2);
+        checkTokenValidity(KW_FILE, 5, "file", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testFileFile() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "filefile";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "filefile", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1182,7 +1342,23 @@ public class ScannerTest {
     @Test
     public void testFrame() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "frameframe";
+        String input = "frame";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_FRAME, 0, "frame", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleFrame() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "frame frame";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1193,7 +1369,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_FRAME, 5, "frame", token2);
+        checkTokenValidity(KW_FRAME, 6, "frame", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testFrameFrame() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "frameframe";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "frameframe", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1234,7 +1426,23 @@ public class ScannerTest {
     @Test
     public void testGray() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "graygray";
+        String input = "gray";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_GRAY, 0, "gray", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleGray() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "gray gray";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1245,7 +1453,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_GRAY, 4, "gray", token2);
+        checkTokenValidity(OP_GRAY, 5, "gray", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testGrayGray() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "graygray";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "graygray", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1286,7 +1510,23 @@ public class ScannerTest {
     @Test
     public void testHeight() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "heightheight";
+        String input = "height";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_HEIGHT, 0, "height", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleHeight() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "height height";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1297,7 +1537,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_HEIGHT, 6, "height", token2);
+        checkTokenValidity(OP_HEIGHT, 7, "height", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testHeightHeight() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "heightheight";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "heightheight", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1306,7 +1562,23 @@ public class ScannerTest {
     @Test
     public void testHide() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "hidehide";
+        String input = "hide";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_HIDE, 0, "hide", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleHide() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "hide hide";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1317,7 +1589,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_HIDE, 4, "hide", token2);
+        checkTokenValidity(KW_HIDE, 5, "hide", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testHideHide() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "hidehide";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "hidehide", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1358,7 +1646,23 @@ public class ScannerTest {
     @Test
     public void testIf() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "ifif";
+        String input = "if";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_IF, 0, "if", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleIf() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "if if";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1369,7 +1673,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_IF, 2, "if", token2);
+        checkTokenValidity(KW_IF, 3, "if", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testIfIf() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "ifif";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "ifif", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1378,7 +1698,23 @@ public class ScannerTest {
     @Test
     public void testImage() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "imageimage";
+        String input = "image";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_IMAGE, 0, "image", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleImage() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "image image";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1389,7 +1725,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_IMAGE, 5, "image", token2);
+        checkTokenValidity(KW_IMAGE, 6, "image", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testImageImage() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "imageimage";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "imageimage", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1398,7 +1750,23 @@ public class ScannerTest {
     @Test
     public void testInteger() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "integerinteger";
+        String input = "integer";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_INTEGER, 0, "integer", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleInteger() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "integer integer";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1409,7 +1777,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_INTEGER, 7, "integer", token2);
+        checkTokenValidity(KW_INTEGER, 8, "integer", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testIntegerInteger() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "integerinteger";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "integerinteger", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1450,7 +1834,23 @@ public class ScannerTest {
     @Test
     public void testMove() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "movemove";
+        String input = "move";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_MOVE, 0, "move", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleMove() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "move move";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1461,7 +1861,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_MOVE, 4, "move", token2);
+        checkTokenValidity(KW_MOVE, 5, "move", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMoveMove() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "movemove";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "movemove", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1534,7 +1950,23 @@ public class ScannerTest {
     @Test
     public void testScale() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "scalescale";
+        String input = "scale";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_SCALE, 0, "scale", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleScale() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "scale scale";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1545,7 +1977,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_SCALE, 5, "scale", token2);
+        checkTokenValidity(KW_SCALE, 6, "scale", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testScaleScale() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "scalescale";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "scalescale", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1586,7 +2034,23 @@ public class ScannerTest {
     @Test
     public void testScreenHeight() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "screenheightscreenheight";
+        String input = "screenheight";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_SCREENHEIGHT, 0, "screenheight", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleScreenHeight() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "screenheight screenheight";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1597,7 +2061,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_SCREENHEIGHT, 12, "screenheight", token2);
+        checkTokenValidity(KW_SCREENHEIGHT, 13, "screenheight", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testScreenHeightScreenHeight() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "screenheightscreenheight";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "screenheightscreenheight", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1606,7 +2086,23 @@ public class ScannerTest {
     @Test
     public void testScreenwidth() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "screenwidthscreenwidth";
+        String input = "screenwidth";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_SCREENWIDTH, 0, "screenwidth", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleScreenwidth() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "screenwidth screenwidth";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1617,7 +2113,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_SCREENWIDTH, 11, "screenwidth", token2);
+        checkTokenValidity(KW_SCREENWIDTH, 12, "screenwidth", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testScreenwidthScreenwidth() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "screenwidthscreenwidth";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "screenwidthscreenwidth", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1626,7 +2138,23 @@ public class ScannerTest {
     @Test
     public void testShow() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "showshow";
+        String input = "show";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_SHOW, 0, "show", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleShow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "show show";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1637,7 +2165,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_SHOW, 4, "show", token2);
+        checkTokenValidity(KW_SHOW, 5, "show", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testShowShow() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "showshow";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "showshow", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1646,7 +2190,23 @@ public class ScannerTest {
     @Test
     public void testSleep() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "sleepsleep";
+        String input = "sleep";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_SLEEP, 0, "sleep", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleSleep() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "sleep sleep";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1657,7 +2217,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_SLEEP, 5, "sleep", token2);
+        checkTokenValidity(OP_SLEEP, 6, "sleep", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testSleepSleep() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "sleepsleep";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "sleepsleep", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1698,7 +2274,23 @@ public class ScannerTest {
     @Test
     public void testTrue() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "truetrue";
+        String input = "true";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_TRUE, 0, "true", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleTrue() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "true true";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1709,7 +2301,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_TRUE, 4, "true", token2);
+        checkTokenValidity(KW_TRUE, 5, "true", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testTrueTrue() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "truetrue";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "truetrue", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1750,7 +2358,23 @@ public class ScannerTest {
     @Test
     public void testUrl() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "urlurl";
+        String input = "url";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_URL, 0, "url", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleUrl() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "url url";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1761,7 +2385,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_URL, 3, "url", token2);
+        checkTokenValidity(KW_URL, 4, "url", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testUrlUrl() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "urlurl";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "urlurl", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1802,7 +2442,23 @@ public class ScannerTest {
     @Test
     public void testWhile() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "whilewhile";
+        String input = "while";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_WHILE, 0, "while", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleWhile() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "while while";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1813,7 +2469,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_WHILE, 5, "while", token2);
+        checkTokenValidity(KW_WHILE, 6, "while", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testWhileWhile() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "whilewhile";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "whilewhile", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1822,7 +2494,23 @@ public class ScannerTest {
     @Test
     public void testWidth() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "widthwidth";
+        String input = "width";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(OP_WIDTH, 0, "width", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleWidth() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "width width";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1833,7 +2521,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_WIDTH, 5, "width", token2);
+        checkTokenValidity(OP_WIDTH, 6, "width", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testWidthWidth() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "widthwidth";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "widthwidth", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1874,7 +2578,23 @@ public class ScannerTest {
     @Test
     public void testXloc() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "xlocxloc";
+        String input = "xloc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_XLOC, 0, "xloc", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleXloc() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "xloc xloc";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1885,7 +2605,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_XLOC, 4, "xloc", token2);
+        checkTokenValidity(KW_XLOC, 5, "xloc", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testXlocXloc() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "xlocxloc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "xlocxloc", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -1926,7 +2662,23 @@ public class ScannerTest {
     @Test
     public void testYloc() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "ylocyloc";
+        String input = "yloc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(KW_YLOC, 0, "yloc", token1);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testMultipleYloc() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "yloc yloc";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -1937,7 +2689,23 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(KW_YLOC, 4, "yloc", token2);
+        checkTokenValidity(KW_YLOC, 5, "yloc", token2);
+
+        Scanner.Token token3 = scanner.nextToken();
+        assertEquals(EOF, token3.kind);
+    }
+
+    @Test
+    public void testYlocYloc() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "ylocyloc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "ylocyloc", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -2153,11 +2921,7 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token1 = scanner.nextToken();
-        checkTokenValidity(OP_WIDTH, 0, "width", token1);
-
-        //get the next token and check its kind, position, and contents
-        Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(IDENT, 5, "_", token2);
+        checkTokenValidity(IDENT, 0, "width_", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -2189,11 +2953,7 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token1 = scanner.nextToken();
-        checkTokenValidity(KW_XLOC, 0, "xloc", token1);
-
-        //get the next token and check its kind, position, and contents
-        Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(IDENT, 4, "onvolve", token2);
+        checkTokenValidity(IDENT, 0, "xloconvolve", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -2209,11 +2969,7 @@ public class ScannerTest {
 
         //get the next token and check its kind, position, and contents
         Scanner.Token token1 = scanner.nextToken();
-        checkTokenValidity(KW_XLOC, 0, "xloc", token1);
-
-        //get the next token and check its kind, position, and contents
-        Scanner.Token token2 = scanner.nextToken();
-        checkTokenValidity(OP_CONVOLVE, 4, "convolve", token2);
+        checkTokenValidity(IDENT, 0, "xlocconvolve", token1);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -2312,7 +3068,7 @@ public class ScannerTest {
     }
 
     @Test
-    public void testCode() throws IllegalCharException, IllegalNumberException {
+    public void testRandomCode() throws IllegalCharException, IllegalNumberException {
         //input string
         String input = "i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j);\n\n    };\n\n    i <- i + 1;\n\n}";
         //create and initialize the scanner
@@ -2482,4 +3238,46 @@ public class ScannerTest {
         Scanner.Token token41 = scanner.nextToken();
         assertEquals(EOF, token41.kind);
     }
+
+
+    @Test
+    public void testRandomKeyword() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "whileabc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "whileabc", token1);
+
+        Scanner.Token token41 = scanner.nextToken();
+        assertEquals(EOF, token41.kind);
+    }
+
+    @Test
+    public void testRandomKeyword2() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "abc|->abc";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 0, "abc", token1);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(BARARROW, 3, "|->", token2);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token3 = scanner.nextToken();
+        checkTokenValidity(IDENT, 6, "abc", token3);
+
+        Scanner.Token token41 = scanner.nextToken();
+        assertEquals(EOF, token41.kind);
+    }
+
 }
