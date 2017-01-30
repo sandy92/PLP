@@ -325,7 +325,7 @@ public class ScannerTest {
     @Test
     public void testGetLinePos() throws IllegalCharException, IllegalNumberException {
         //input string
-        String input = "23748 2837;\n23478 753426 283754;\n 328 457 829437;";
+        String input = "23748 2837;\n23478 753426 /* some random \n multi line comment in between */ 283754;\n 328 457 829437;";
         //create and initialize the scanner
         Scanner scanner = new Scanner(input);
         scanner.scan();
@@ -356,27 +356,27 @@ public class ScannerTest {
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 13), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 34), linePos);
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 19), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 40), linePos);
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 1), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(3, 1), linePos);
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 5), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(3, 5), linePos);
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 9), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(3, 9), linePos);
 
         token = scanner.nextToken();
         linePos = scanner.getLinePos(token);
-        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(2, 15), linePos);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(3, 15), linePos);
 
         token = scanner.nextToken();
         assertEquals(EOF, token.kind);
@@ -531,8 +531,14 @@ public class ScannerTest {
         Scanner.Token token1 = scanner.nextToken();
         checkTokenValidity(LPAREN, 0, LPAREN.getText(), token1);
 
+        Scanner.LinePos linePos1 = scanner.getLinePos(token1);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 0), linePos1);
+
         Scanner.Token token2 = scanner.nextToken();
         checkTokenValidity(RPAREN, 43, RPAREN.getText(), token2);
+
+        Scanner.LinePos linePos2 = scanner.getLinePos(token2);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 43), linePos2);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);
@@ -550,8 +556,14 @@ public class ScannerTest {
         Scanner.Token token1 = scanner.nextToken();
         checkTokenValidity(LPAREN, 0, LPAREN.getText(), token1);
 
+        Scanner.LinePos linePos1 = scanner.getLinePos(token1);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(0, 0), linePos1);
+
         Scanner.Token token2 = scanner.nextToken();
         checkTokenValidity(RPAREN, 44, RPAREN.getText(), token2);
+
+        Scanner.LinePos linePos2 = scanner.getLinePos(token2);
+        assertEquals("Scanner.getLinePos :: Invalid Line Pos", new Scanner.LinePos(1, 21), linePos2);
 
         Scanner.Token token3 = scanner.nextToken();
         assertEquals(EOF, token3.kind);

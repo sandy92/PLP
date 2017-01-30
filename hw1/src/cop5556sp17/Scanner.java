@@ -254,7 +254,8 @@ public class Scanner {
                             case '\n':
                                 lineStartPosArray.add(lineStartPos);
                                 currentLineNumber++;
-                                lineStartPos = ++pos;
+                                lineStartPos = pos+1;
+                                pos++;
                                 break;
                             case ';':
                                 tokens.add(new Token(Kind.SEMI, startPos, 1));
@@ -435,6 +436,10 @@ public class Scanner {
                     case IN_COMMENT:
                         if (ch == '*') {
                             state = State.IN_COMMENT_MIGHT_CLOSE;
+                        } else if(ch == '\n') {
+                            lineStartPosArray.add(lineStartPos);
+                            currentLineNumber++;
+                            lineStartPos = pos+1;
                         }
                         pos++;
                         break;
@@ -442,6 +447,11 @@ public class Scanner {
                         if (ch == '/') {
                             state = State.START;
                         } else {
+                            if (ch == '\n') {
+                                lineStartPosArray.add(lineStartPos);
+                                currentLineNumber++;
+                                lineStartPos = pos+1;
+                            }
                             state = State.IN_COMMENT;
                         }
                         pos++;
@@ -467,6 +477,8 @@ public class Scanner {
             }
 
             lineStartPosArray.add(lineStartPos);
+        } else {
+            lineStartPosArray.add(0);
         }
 
 
