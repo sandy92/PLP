@@ -3292,4 +3292,40 @@ public class ScannerTest {
         assertEquals(EOF, token41.kind);
     }
 
+    @Test
+    public void testRandomCode2() throws IllegalCharException, IllegalNumberException {
+        //input string
+        String input = "/*...*/a/***/\nbc!/ /*/ /**/ !\nd/*.**/";
+        //create and initialize the scanner
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token1 = scanner.nextToken();
+        checkTokenValidity(IDENT, 7, "a", token1);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token2 = scanner.nextToken();
+        checkTokenValidity(IDENT, 14, "bc", token2);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token3 = scanner.nextToken();
+        checkTokenValidity(NOT, 16, "!", token3);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token4 = scanner.nextToken();
+        checkTokenValidity(DIV, 17, "/", token4);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token5 = scanner.nextToken();
+        checkTokenValidity(NOT, 28, "!", token5);
+
+        //get the next token and check its kind, position, and contents
+        Scanner.Token token6 = scanner.nextToken();
+        checkTokenValidity(IDENT, 30, "d", token6);
+
+        Scanner.Token token7 = scanner.nextToken();
+        assertEquals(EOF, token7.kind);
+    }
+
 }

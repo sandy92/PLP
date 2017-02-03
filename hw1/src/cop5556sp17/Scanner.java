@@ -446,6 +446,8 @@ public class Scanner {
                     case IN_COMMENT_MIGHT_CLOSE:
                         if (ch == '/') {
                             state = State.START;
+                        } else if (ch == '*') {
+                            state = State.IN_COMMENT_MIGHT_CLOSE;
                         } else {
                             if (ch == '\n') {
                                 lineStartPosArray.add(lineStartPos);
