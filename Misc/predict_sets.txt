@@ -1,0 +1,160 @@
+- statement ::=  chain  ;  
+    // Predict - {IDENT ,KW_BLUR, KW_GRAY,KW_CONVOLVE,KW_SHOW,  KW_HIDE,  KW_MOVE,  KW_XLOC,   KW_YLOC,KW_WIDTH, KW_HEIGHT,   KW_SCALE}
+
+- statement ::=  IDENT chainTail ; | chainElemOps chainTail  ;  
+
+- statement ::=  IDENT ASSIGN  expression ;  
+
+-statement ::=  assign  ; 
+-    // Predict - {IDENT}
+
+-assign ::=  IDENT ASSIGN  expression
+-    // Predict - {IDENT}
+
+- chain ::= chainElem arrowOp chainElem ( arrowOp chainElem)*
+    // Predict - {IDENT ,KW_BLUR, KW_GRAY,KW_CONVOLVE,KW_SHOW,  KW_HIDE,  KW_MOVE,  KW_XLOC,   KW_YLOC,KW_WIDTH, KW_HEIGHT,   KW_SCALE}
+
+- chain ::= IDENT chainTail | chainElemOps chainTail
+
+- chainElem ::=  IDENT  
+    // Predict - {IDENT}
+
+- chainElem ::=  filterOp arg 
+    // Predict - {KW_BLUR, KW_GRAY, KW_CONVOLVE}
+
+- chainElem ::=  frameOp arg 
+    // Predict - {KW_SHOW, KW_HIDE, KW_MOVE, KW_XLOC, KW_YLOC}
+
+- chainElem ::=  imageOp arg
+    // Predict - {KW_WIDTH, KW_HEIGHT, KW_SCALE}
+
+=======================
+
+program ::=  IDENT params block
+    // Predict - {IDENT}
+
+params ::= ε 
+    // Predict - { "{(i.e., LPAREN)" } // Follow(params) = First(block)
+
+params ::= param_dec ( ,param_dec )*
+    // Predict - {KW_URL,  KW_FILE,  KW_INTEGER,  KW_BOOLEAN}
+
+param_dec ::= (  KW_URL  |  KW_FILE  |  KW_INTEGER  |  KW_BOOLEAN)   IDENT
+    // Predict - {KW_URL,  KW_FILE,  KW_INTEGER,  KW_BOOLEAN}
+
+block ::=  {  ( dec | statement) *  }
+    // Predict - { "{(i.e., LPAREN)" }
+
+dec ::= (  KW_INTEGER  |  KW_BOOLEAN  |  KW_IMAGE  |  KW_FRAME)    IDENT
+    // Predict - {KW_INTEGER,  KW_BOOLEAN,  KW_IMAGE,  KW_FRAME}
+
+statement ::=  OP_SLEEP  expression ;
+    // Predict -  {OP_SLEEP}
+
+statement ::=  whileStatement 
+    // Predict - {KW_WHILE}
+
+statement ::=  ifStatement 
+    // Predict - {KW_IF}
+
+statement ::=  IDENT statementIdentTail ; 
+    // Predict - {IDENT}
+
+statement ::=  chainElemOps chainTail  ;
+    // Predict - {KW_BLUR, KW_GRAY,KW_CONVOLVE,KW_SHOW,  KW_HIDE,  KW_MOVE,  KW_XLOC,   KW_YLOC,KW_WIDTH, KW_HEIGHT,   KW_SCALE}
+
+statementIdentTail ::= ASSIGN expression
+    // Predict - {ASSIGN}
+
+statementIdentTail ::= chainTail
+    // Predict - {ARROW, BARARROW}
+
+chainTail ::= arrowOp chainElem ( arrowOp chainElem)*
+    // Predict - {ARROW, BARARROW}
+
+chainElem ::= IDENT
+    // Predict - {IDENT}
+
+chainElem ::= chainElemOps
+    // Predict - {KW_BLUR, KW_GRAY,KW_CONVOLVE,KW_SHOW,  KW_HIDE,  KW_MOVE,  KW_XLOC,   KW_YLOC,KW_WIDTH, KW_HEIGHT,   KW_SCALE}
+
+chainElemOps ::= filterOp arg 
+    // Predict - {KW_BLUR, KW_GRAY, KW_CONVOLVE}
+
+chainElemOps ::= frameOp arg 
+    // Predict - {KW_SHOW, KW_HIDE, KW_MOVE, KW_XLOC, KW_YLOC}
+
+chainElemOps ::= imageOp arg
+    // Predict - {KW_WIDTH, KW_HEIGHT, KW_SCALE}
+
+whileStatement ::=  KW_WHILE  (  expression  )  block
+    // Predict - {KW_WHILE}
+
+ifStatement ::=  KW_IF  (  expression )    block
+    // Predict - {KW_IF}
+
+arrowOp ∷=  ARROW  
+    // Predict - {ARROW}
+
+arrowOp ∷=  BARARROW
+    // Predict - {BARARROW}
+
+filterOp ::=  KW_BLUR  
+    // Predict - {KW_BLUR}
+
+filterOp ::=  KW_GRAY 
+    // Predict - {KW_GRAY}
+
+filterOp ::=  KW_CONVOLVE
+    // Predict - {KW_CONVOLVE}
+
+frameOp ::=  KW_SHOW 
+    // Predict - {KW_SHOW}
+
+frameOp ::=  KW_HIDE  
+    // Predict - {KW_HIDE}
+
+frameOp ::=  KW_MOVE  
+    // Predict - {KW_MOVE}
+
+frameOp ::=  KW_XLOC 
+    // Predict - {KW_XLOC}
+
+frameOp ::=  KW_YLOC
+    // Predict - {KW_YLOC}
+
+imageOp ::=  KW_WIDTH  
+    // Predict - {KW_WIDTH}
+
+imageOp ::=  KW_HEIGHT 
+    // Predict - {KW_HEIGHT}
+
+imageOp ::=  KW_SCALE
+    // Predict - {KW_SCALE}
+    
+arg ::= ε 
+    // Predict - {ARROW, BARARROW, ;}
+
+arg ::= (  expression (  , expression)* ) 
+    // Predict - {(}
+
+expression ∷= term ( relOp term)*
+    // Predict - {IDENT, INT_LIT, KW_TRUE, KW_FALSE, KW_SCREENWIDTH, KW_SCREENHEIGHT, (}
+
+term ∷= elem ( weakOp elem)*
+    // Predict - {IDENT, INT_LIT, KW_TRUE, KW_FALSE, KW_SCREENWIDTH, KW_SCREENHEIGHT, (}
+
+elem ∷= factor ( strongOp factor)*
+    // Predict - {IDENT, INT_LIT, KW_TRUE, KW_FALSE, KW_SCREENWIDTH, KW_SCREENHEIGHT, (}
+
+factor ∷=  IDENT  |  INT_LIT |   KW_TRUE |   KW_FALSE |  KW_SCREENWIDTH |   KW_SCREENHEIGHT |   (  expression ) 
+    // Predict - {IDENT, INT_LIT, KW_TRUE, KW_FALSE, KW_SCREENWIDTH, KW_SCREENHEIGHT, (}
+
+relOp ∷=  LT  |  LE  |  GT  |  GE  |  EQUAL  |  NOTEQUAL
+    // Predict - {LT, LE, GT, GE, EQUAL, NOTEQUAL}
+
+weakOp ∷=  PLUS  |  MINUS  |  OR
+    // Predict - {PLUS,  MINUS,  OR}
+
+strongOp ∷=  TIMES  |  DIV  |  AND  |  MOD
+    // Predict - {TIMES, DIV, AND, MOD}

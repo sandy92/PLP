@@ -153,6 +153,10 @@ public class Scanner {
             return Integer.parseInt(getText());
         }
 
+        public boolean isKind(Kind kind) {
+            return this.kind == kind;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
