@@ -1,15 +1,16 @@
 package cop5556sp17;
 
 import cop5556sp17.Scanner.Kind;
-import static cop5556sp17.Scanner.Kind.*;
 import cop5556sp17.Scanner.Token;
+
+import static cop5556sp17.Scanner.Kind.EOF;
+import static cop5556sp17.Scanner.Kind.RPAREN;
 
 public class Parser {
 
     /**
      * Exception to be thrown if a syntax error is detected in the input.
      * You will want to provide a useful error message.
-     *
      */
     @SuppressWarnings("serial")
     public static class SyntaxException extends Exception {
@@ -17,14 +18,13 @@ public class Parser {
             super(message);
         }
     }
-    
+
     /**
      * Useful during development to ensure unimplemented routines are
-     * not accidentally called during development.  Delete it when 
+     * not accidentally called during development.  Delete it when
      * the Parser is finished.
-     *
      */
-    @SuppressWarnings("serial") 
+    @SuppressWarnings("serial")
     public static class UnimplementedFeatureException extends RuntimeException {
         public UnimplementedFeatureException() {
             super();
@@ -42,7 +42,7 @@ public class Parser {
     /**
      * parse the input using tokens from the scanner.
      * Check for EOF (i.e. no trailing junk) when finished
-     * 
+     *
      * @throws SyntaxException
      */
     void parse() throws SyntaxException {
@@ -69,33 +69,33 @@ public class Parser {
     void factor() throws SyntaxException {
         Kind kind = t.kind;
         switch (kind) {
-        case IDENT: {
-            consume();
-        }
+            case IDENT: {
+                consume();
+            }
             break;
-        case INT_LIT: {
-            consume();
-        }
+            case INT_LIT: {
+                consume();
+            }
             break;
-        case KW_TRUE:
-        case KW_FALSE: {
-            consume();
-        }
+            case KW_TRUE:
+            case KW_FALSE: {
+                consume();
+            }
             break;
-        case KW_SCREENWIDTH:
-        case KW_SCREENHEIGHT: {
-            consume();
-        }
+            case KW_SCREENWIDTH:
+            case KW_SCREENHEIGHT: {
+                consume();
+            }
             break;
-        case LPAREN: {
-            consume();
-            expression();
-            match(RPAREN);
-        }
+            case LPAREN: {
+                consume();
+                expression();
+                match(RPAREN);
+            }
             break;
-        default:
-            //TODO you will want to provide a more useful error message
-            throw new SyntaxException("illegal factor");
+            default:
+                //TODO you will want to provide a more useful error message
+                throw new SyntaxException("illegal factor");
         }
     }
 
@@ -124,6 +124,11 @@ public class Parser {
         throw new UnimplementedFeatureException();
     }
 
+    void assign() throws SyntaxException {
+        //TODO
+        throw new UnimplementedFeatureException();
+    }
+
     void chain() throws SyntaxException {
         //TODO
         throw new UnimplementedFeatureException();
@@ -139,10 +144,56 @@ public class Parser {
         throw new UnimplementedFeatureException();
     }
 
+    void whileStatement() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void ifStatement() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void filterOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void frameOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void imageOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void arrowOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void relOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void weakOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+    void strongOp() throws SyntaxException {
+        // TODO
+        throw new UnimplementedFeatureException();
+    }
+
+
     /**
      * Checks whether the current token is the EOF token. If not, a
      * SyntaxException is thrown.
-     * 
+     *
      * @return
      * @throws SyntaxException
      */
@@ -156,9 +207,9 @@ public class Parser {
     /**
      * Checks if the current token has the given kind. If so, the current token
      * is consumed and returned. If not, a SyntaxException is thrown.
-     * 
+     * <p>
      * Precondition: kind != EOF
-     * 
+     *
      * @param kind
      * @return
      * @throws SyntaxException
@@ -167,18 +218,17 @@ public class Parser {
         if (t.isKind(kind)) {
             return consume();
         }
-        throw new SyntaxException("saw " + t.kind + "expected " + kind);
+        throw new SyntaxException("saw " + t.kind + ", expected " + kind);
     }
 
     /**
      * Checks if the current token has one of the given kinds. If so, the
      * current token is consumed and returned. If not, a SyntaxException is
      * thrown.
-     * 
+     * <p>
      * * Precondition: for all given kinds, kind != EOF
-     * 
-     * @param kinds
-     *            list of kinds, matches any one
+     *
+     * @param kinds list of kinds, matches any one
      * @return
      * @throws SyntaxException
      */
@@ -189,11 +239,10 @@ public class Parser {
 
     /**
      * Gets the next token and returns the consumed token.
-     * 
+     * <p>
      * Precondition: t.kind != EOF
-     * 
+     *
      * @return
-     * 
      */
     private Token consume() throws SyntaxException {
         Token tmp = t;
