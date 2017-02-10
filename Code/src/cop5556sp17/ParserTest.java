@@ -23,7 +23,7 @@ public class ParserTest {
 
     @Test
     public void testProgram1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "prog1 url abc, file def {image xyz sleep 30}";
+        String input = "prog1 url abc, file def {image xyz sleep 30;}";
         Parser parser = new Parser(new Scanner(input).scan());
         parser.parse();
     }
@@ -103,7 +103,7 @@ public class ParserTest {
 
     @Test
     public void testBlock1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "{sleep 20}";
+        String input = "{sleep 20; }";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -112,7 +112,7 @@ public class ParserTest {
 
     @Test
     public void testBlock2() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "{image xyz sleep 30}";
+        String input = "{image xyz sleep 30;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -216,7 +216,7 @@ public class ParserTest {
 
     @Test
     public void testStatement3() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc -> blur abc,23 -> show 123,75;";
+        String input = "abc -> blur (abc,23) -> show (123,75);";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -430,8 +430,17 @@ public class ParserTest {
     }
 
     @Test
-    public void testChainElemError() throws IllegalCharException, IllegalNumberException, SyntaxException {
+    public void testChainElem4() throws IllegalCharException, IllegalNumberException, SyntaxException {
         String input = "xloc";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        parser.chainElem();
+    }
+
+    @Test
+    public void testChainElemError() throws IllegalCharException, IllegalNumberException, SyntaxException {
+        String input = "!";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -591,8 +600,18 @@ public class ParserTest {
     }
 
     @Test
-    public void testArgError() throws IllegalCharException, IllegalNumberException, SyntaxException {
+    public void testArgError0() throws IllegalCharException, IllegalNumberException, SyntaxException {
         String input = "  (3,) ";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        thrown.expect(Parser.SyntaxException.class);
+        parser.arg();
+    }
+
+    @Test
+    public void testArgError1() throws IllegalCharException, IllegalNumberException, SyntaxException {
+        String input = "  (3, 5, ) ";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -622,7 +641,7 @@ public class ParserTest {
 
     @Test
     public void testExpressionError1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc & def ";
+        String input = "abc >= def < == ";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -652,7 +671,7 @@ public class ParserTest {
 
     @Test
     public void testTermError1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc * def ";
+        String input = "abc - def | +";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -682,7 +701,7 @@ public class ParserTest {
 
     @Test
     public void testElemError1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc + def ";
+        String input = "abc / def & %";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -927,7 +946,7 @@ public class ParserTest {
     // Random Code
     @Test
     public void testRandomCode() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j);\n\n    };\n\n    i <- i + 1;\n\n}}";
+        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j) -> hide(2);\n\n    }\n\n    i <- i + 1;\n\n}}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -935,14 +954,14 @@ public class ParserTest {
     }
 
     @Test
-    public void testRandomCodeErrot() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j);\n\n    };\n\n    i <- i + 1;\n\n}";
+    public void testRandomCodeError() throws IllegalCharException, IllegalNumberException, SyntaxException {
+        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n    if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j) -> hide(2);\n\n    }\n\n    i <- i + 1;\n\n}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
         thrown.expect(Parser.SyntaxException.class);
+        thrown.expectMessage("saw EOF");
         parser.parse();
     }
-
 
 }

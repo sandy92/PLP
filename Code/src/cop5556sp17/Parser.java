@@ -3,8 +3,9 @@ package cop5556sp17;
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
 
-import static cop5556sp17.Scanner.Kind.EOF;
-import static cop5556sp17.Scanner.Kind.RPAREN;
+import java.util.HashSet;
+
+import static cop5556sp17.Scanner.Kind.*;
 
 public class Parser {
 
@@ -52,18 +53,39 @@ public class Parser {
     }
 
     void expression() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            term();
+            while (t.kind == LT || t.kind == LE || t.kind == GT || t.kind == GE || t.kind == EQUAL || t.kind == NOTEQUAL) {
+                consume();
+                term();
+            }
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal expression :: " + e.getMessage());
+        }
     }
 
     void term() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            elem();
+            while (t.kind == PLUS || t.kind == MINUS || t.kind == OR) {
+                consume();
+                elem();
+            }
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal term :: " + e.getMessage());
+        }
     }
 
     void elem() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            factor();
+            while (t.kind == TIMES || t.kind == DIV || t.kind == AND || t.kind == MOD) {
+                consume();
+                factor();
+            }
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal elem :: " + e.getMessage());
+        }
     }
 
     void factor() throws SyntaxException {
@@ -88,105 +110,347 @@ public class Parser {
             }
             break;
             case LPAREN: {
-                consume();
-                expression();
-                match(RPAREN);
+                try {
+                    consume();
+                    expression();
+                    match(RPAREN);
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal factor :: " + e.getMessage());
+                }
             }
             break;
             default:
-                //TODO you will want to provide a more useful error message
-                throw new SyntaxException("illegal factor");
+                throw new SyntaxException("illegal factor :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
     }
 
     void block() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == LBRACE) {
+            HashSet<Kind> decPredictSet = new HashSet<>();
+            decPredictSet.add(KW_INTEGER);
+            decPredictSet.add(KW_BOOLEAN);
+            decPredictSet.add(KW_IMAGE);
+            decPredictSet.add(KW_FRAME);
+
+
+            HashSet<Kind> statementPredictSet = new HashSet<>();
+            statementPredictSet.add(OP_SLEEP);
+            statementPredictSet.add(KW_WHILE);
+            statementPredictSet.add(KW_IF);
+            statementPredictSet.add(IDENT);
+            statementPredictSet.add(OP_BLUR);
+            statementPredictSet.add(OP_GRAY);
+            statementPredictSet.add(OP_CONVOLVE);
+            statementPredictSet.add(KW_SHOW);
+            statementPredictSet.add(KW_HIDE);
+            statementPredictSet.add(KW_MOVE);
+            statementPredictSet.add(KW_XLOC);
+            statementPredictSet.add(KW_YLOC);
+            statementPredictSet.add(OP_WIDTH);
+            statementPredictSet.add(OP_HEIGHT);
+            statementPredictSet.add(KW_SCALE);
+
+            try {
+                consume();
+                while (decPredictSet.contains(t.kind) || statementPredictSet.contains(t.kind)) {
+                    if (decPredictSet.contains(t.kind)) {
+                        dec();
+                    } else if (statementPredictSet.contains(t.kind)) {
+                        statement();
+                    } else {
+                        throw new SyntaxException("Hashset error, unexpected branching for " + t.kind);
+                    }
+                }
+                match(RBRACE);
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal block :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal block :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void program() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(IDENT);
+            if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
+                paramDec();
+                while (t.kind == COMMA) {
+                    consume();
+                    paramDec();
+                }
+            }
+            block();
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal program :: " + e.getMessage());
+        }
     }
 
     void paramDec() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
+            try {
+                consume();
+                match(IDENT);
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal paramDec :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal paramDec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void dec() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == KW_INTEGER || t.kind == KW_BOOLEAN || t.kind == KW_IMAGE || t.kind == KW_FRAME) {
+            try {
+                consume();
+                match(IDENT);
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal dec :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal dec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void statement() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        Kind kind = t.kind;
+        switch (kind) {
+            case OP_SLEEP:
+                try {
+                    consume();
+                    expression();
+                    match(SEMI);
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal statement :: " + e.getMessage());
+                }
+                break;
+            case KW_WHILE:
+                try {
+                    whileStatement();
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal statement :: " + e.getMessage());
+                }
+                break;
+            case KW_IF:
+                try {
+                    ifStatement();
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal statement :: " + e.getMessage());
+                }
+                break;
+            case IDENT:
+                try {
+                    Token next = scanner.peek();
+                    if (next.kind == ASSIGN) {
+                        assign();
+                        match(SEMI);
+                    } else if (next.kind == ARROW || next.kind == BARARROW) {
+                        chain();
+                        match(SEMI);
+                    } else {
+                        throw new SyntaxException("illegal statement :: saw " + t.kind + " after IDENT at " + scanner.getLinePos(t).toString());
+                    }
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal statement :: " + e.getMessage());
+                }
+                break;
+            case OP_BLUR:
+            case OP_GRAY:
+            case OP_CONVOLVE:
+            case KW_SHOW:
+            case KW_HIDE:
+            case KW_MOVE:
+            case KW_XLOC:
+            case KW_YLOC:
+            case OP_WIDTH:
+            case OP_HEIGHT:
+            case KW_SCALE:
+                try {
+                    chain();
+                    match(SEMI);
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal statement :: " + e.getMessage());
+                }
+                break;
+            default:
+                throw new SyntaxException("illegal statement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void assign() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == IDENT) {
+            try {
+                consume();
+                match(ASSIGN);
+                expression();
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal assign :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void chain() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            chainElem();
+            arrowOp();
+            chainElem();
+            while (t.kind == ARROW || t.kind == BARARROW) {
+                consume();
+                chainElem();
+            }
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
+        }
     }
 
     void chainElem() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        Kind kind = t.kind;
+
+        switch (kind) {
+            case IDENT:
+                consume();
+                break;
+            case OP_BLUR:
+            case OP_GRAY:
+            case OP_CONVOLVE:
+                try {
+                    consume();
+                    arg();
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal chainElem :: " + e.getMessage());
+                }
+                break;
+            case KW_SHOW:
+            case KW_HIDE:
+            case KW_MOVE:
+            case KW_XLOC:
+            case KW_YLOC:
+                try {
+                    consume();
+                    arg();
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal chainElem :: " + e.getMessage());
+                }
+                break;
+            case OP_WIDTH:
+            case OP_HEIGHT:
+            case KW_SCALE:
+                try {
+                    consume();
+                    arg();
+                } catch (SyntaxException e) {
+                    throw new SyntaxException("illegal chainElem :: " + e.getMessage());
+                }
+                break;
+            default:
+                throw new SyntaxException("illegal chainElem :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void arg() throws SyntaxException {
-        //TODO
-        throw new UnimplementedFeatureException();
+        try {
+            if (t.kind == LPAREN) {
+                consume();
+                expression();
+                while (t.kind == COMMA) {
+                    consume();
+                    expression();
+                }
+                match(RPAREN);
+            }
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal arg :: " + e.getMessage());
+        }
     }
 
     void whileStatement() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == KW_WHILE) {
+            try {
+                consume();
+                match(LPAREN);
+                expression();
+                match(RPAREN);
+                block();
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal whileStatement :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal whileStatement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void ifStatement() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        if (t.kind == KW_IF) {
+            try {
+                consume();
+                match(LPAREN);
+                expression();
+                match(RPAREN);
+                block();
+            } catch (SyntaxException e) {
+                throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
+            }
+        } else {
+            throw new SyntaxException("illegal ifStatement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
+        }
     }
 
     void filterOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(OP_BLUR, OP_GRAY, OP_CONVOLVE);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal filterOp :: " + e.getMessage());
+        }
     }
 
     void frameOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(KW_SHOW, KW_HIDE, KW_MOVE, KW_XLOC, KW_YLOC);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal frameOp :: " + e.getMessage());
+        }
     }
 
     void imageOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(OP_WIDTH, OP_HEIGHT, KW_SCALE);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal imageOp :: " + e.getMessage());
+        }
     }
 
     void arrowOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(ARROW, BARARROW);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal arrowOp :: " + e.getMessage());
+        }
     }
 
     void relOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(LT, LE, GT, GE, EQUAL, NOTEQUAL);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal relOp :: " + e.getMessage());
+        }
     }
 
     void weakOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(PLUS, MINUS, OR);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal weakOp :: " + e.getMessage());
+        }
     }
 
     void strongOp() throws SyntaxException {
-        // TODO
-        throw new UnimplementedFeatureException();
+        try {
+            match(TIMES, DIV, AND, MOD);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("illegal strongOp :: " + e.getMessage());
+        }
     }
 
 
@@ -201,7 +465,7 @@ public class Parser {
         if (t.isKind(EOF)) {
             return t;
         }
-        throw new SyntaxException("expected EOF");
+        throw new SyntaxException("expected EOF , saw " + t.kind + " at " + scanner.getLinePos(t).toString());
     }
 
     /**
@@ -218,7 +482,7 @@ public class Parser {
         if (t.isKind(kind)) {
             return consume();
         }
-        throw new SyntaxException("saw " + t.kind + ", expected " + kind);
+        throw new SyntaxException("saw " + t.kind + ", expected " + kind + " at " + scanner.getLinePos(t).toString());
     }
 
     /**
@@ -233,8 +497,14 @@ public class Parser {
      * @throws SyntaxException
      */
     private Token match(Kind... kinds) throws SyntaxException {
-        // TODO. Optional but handy
-        return null; //replace this statement
+        StringBuilder allKinds = new StringBuilder("");
+        for (Kind kind : kinds) {
+            allKinds.append(kind + ",");
+            if (t.isKind(kind)) {
+                return consume();
+            }
+        }
+        throw new SyntaxException("saw " + t.kind + ", expected one of the following: " + allKinds.toString() + " at " + scanner.getLinePos(t).toString());
     }
 
     /**
