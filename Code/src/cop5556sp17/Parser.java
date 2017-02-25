@@ -1,5 +1,6 @@
 package cop5556sp17;
 
+import cop5556sp17.AST.ASTNode;
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
 
@@ -52,7 +53,7 @@ public class Parser {
         return;
     }
 
-    void expression() throws SyntaxException {
+    ASTNode expression() throws SyntaxException {
         try {
             term();
             while (t.kind == LT || t.kind == LE || t.kind == GT || t.kind == GE || t.kind == EQUAL || t.kind == NOTEQUAL) {
@@ -62,6 +63,8 @@ public class Parser {
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal expression :: " + e.getMessage());
         }
+
+        return null;
     }
 
     void term() throws SyntaxException {
@@ -124,7 +127,7 @@ public class Parser {
         }
     }
 
-    void block() throws SyntaxException {
+    ASTNode block() throws SyntaxException {
         if (t.kind == LBRACE) {
             HashSet<Kind> decPredictSet = new HashSet<>();
             decPredictSet.add(KW_INTEGER);
@@ -168,9 +171,10 @@ public class Parser {
         } else {
             throw new SyntaxException("illegal block :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return null;
     }
 
-    void program() throws SyntaxException {
+    ASTNode program() throws SyntaxException {
         try {
             match(IDENT);
             if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
@@ -184,9 +188,10 @@ public class Parser {
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal program :: " + e.getMessage());
         }
+        return null;
     }
 
-    void paramDec() throws SyntaxException {
+    ASTNode paramDec() throws SyntaxException {
         if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
             try {
                 consume();
@@ -197,9 +202,10 @@ public class Parser {
         } else {
             throw new SyntaxException("illegal paramDec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return null;
     }
 
-    void dec() throws SyntaxException {
+    ASTNode dec() throws SyntaxException {
         if (t.kind == KW_INTEGER || t.kind == KW_BOOLEAN || t.kind == KW_IMAGE || t.kind == KW_FRAME) {
             try {
                 consume();
@@ -210,9 +216,10 @@ public class Parser {
         } else {
             throw new SyntaxException("illegal dec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return null;
     }
 
-    void statement() throws SyntaxException {
+    ASTNode statement() throws SyntaxException {
         Kind kind = t.kind;
         switch (kind) {
             case OP_SLEEP:
@@ -275,9 +282,10 @@ public class Parser {
             default:
                 throw new SyntaxException("illegal statement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return null;
     }
 
-    void assign() throws SyntaxException {
+    ASTNode assign() throws SyntaxException {
         if (t.kind == IDENT) {
             try {
                 consume();
@@ -289,6 +297,7 @@ public class Parser {
         } else {
             throw new SyntaxException("illegal assign :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return null;
     }
 
     void chain() throws SyntaxException {
@@ -349,7 +358,7 @@ public class Parser {
         }
     }
 
-    void arg() throws SyntaxException {
+    ASTNode arg() throws SyntaxException {
         try {
             if (t.kind == LPAREN) {
                 consume();
@@ -363,6 +372,8 @@ public class Parser {
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal arg :: " + e.getMessage());
         }
+
+        return null;
     }
 
     void whileStatement() throws SyntaxException {

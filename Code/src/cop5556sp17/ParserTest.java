@@ -306,7 +306,7 @@ public class ParserTest {
     // chain
     @Test
     public void testChain() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc -> blur abc,23 -> show 123,75";
+        String input = "abc -> blur abc,23 |-> show 123,75";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
