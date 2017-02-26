@@ -335,7 +335,7 @@ public class ASTTest {
     // FilterOpChain
     @Test
     public void testFilterOpChain0() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "blur 20";
+        String input = "blur (20)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -353,7 +353,7 @@ public class ASTTest {
 
     @Test
     public void testFilterOpChain1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "gray abc";
+        String input = "gray (abc)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -389,7 +389,7 @@ public class ASTTest {
     // FrameOpChain
     @Test
     public void testFrameOpChain0() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "show xyz";
+        String input = "show (xyz)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -428,7 +428,7 @@ public class ASTTest {
 
     @Test
     public void testFrameOpChain2() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "move 20,30";
+        String input = "move (20,30)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -449,7 +449,7 @@ public class ASTTest {
 
     @Test
     public void testFrameOpChain3() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "xloc 34";
+        String input = "xloc (34)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -469,7 +469,7 @@ public class ASTTest {
 
     @Test
     public void testFrameOpChain4() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "yloc 983";
+        String input = "yloc (983)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -508,7 +508,7 @@ public class ASTTest {
 
     @Test
     public void testImageOpChain1() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "height abc";
+        String input = "height (abc)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -528,7 +528,7 @@ public class ASTTest {
 
     @Test
     public void testImageOpChain2() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "scale 20, xyz";
+        String input = "scale (20, xyz)";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -552,7 +552,7 @@ public class ASTTest {
     // BinaryChain
     @Test
     public void testBinaryChain() throws IllegalCharException, IllegalNumberException, SyntaxException {
-        String input = "abc -> blur abc,23 |-> show 123,75;";
+        String input = "abc -> blur (abc,23) |-> show (123,75);";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -778,5 +778,58 @@ public class ASTTest {
         Tuple tuple = (Tuple) ast;
         List<Expression> expressionList = tuple.getExprList();
         assertEquals(0, expressionList.size());
+    }
+
+    @Test
+    public void testRandomCode() throws IllegalCharException, IllegalNumberException, SyntaxException {
+        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n integer abc   if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j) -> width(2);\n\n    }\n\n    i <- i + 1;\n\n}}";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        ASTNode ast = parser.parse();
+
+        assertEquals(Program.class, ast.getClass());
+
+        Program program = (Program) ast;
+        assertEquals("randProg", program.getName());
+        assertEquals(0, program.getParams().size());
+        assertEquals(Block.class, program.getB().getClass());
+
+        Block block = program.getB();
+        assertEquals(0, block.getDecs().size());
+        assertEquals(2, block.getStatements().size());
+
+        assertEquals(AssignmentStatement.class, block.getStatements().get(0));
+        assertEquals(WhileStatement.class, block.getStatements().get(1));
+
+        WhileStatement whileStatement = (WhileStatement) block.getStatements().get(1);
+
+        assertEquals(Block.class, whileStatement.getB().getClass());
+
+        Block whileBlock = whileStatement.getB();
+
+        assertEquals(1, whileBlock.getDecs().size());
+        assertEquals(2, whileBlock.getStatements().size());
+
+        assertEquals(IfStatement.class, block.getStatements().get(0));
+        assertEquals(AssignmentStatement.class, block.getStatements().get(1));
+
+        IfStatement ifStatement = (IfStatement) whileBlock.getStatements().get(0);
+
+        assertEquals(Block.class, whileStatement.getB().getClass());
+
+        Block ifBlock = ifStatement.getB();
+
+        assertEquals(0, ifBlock.getDecs().size());
+        assertEquals(2, ifBlock.getStatements().size());
+
+        assertEquals(AssignmentStatement.class, ifBlock.getStatements().get(0));
+        assertEquals(BinaryChain.class, ifBlock.getStatements().get(1));
+
+        BinaryChain binaryChain = (BinaryChain) ifBlock.getStatements().get(1);
+
+        assertEquals(FrameOpChain.class, binaryChain.getE0().getClass());
+        assertEquals(ImageOpChain.class, binaryChain.getE1().getClass());
+        assertEquals(ARROW, binaryChain.getArrow().kind);
     }
 }
