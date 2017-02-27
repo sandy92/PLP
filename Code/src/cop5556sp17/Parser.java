@@ -1,10 +1,12 @@
 package cop5556sp17;
 
-import cop5556sp17.AST.ASTNode;
+import cop5556sp17.AST.*;
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import static cop5556sp17.Scanner.Kind.*;
 
@@ -48,74 +50,112 @@ public class Parser {
      * @throws SyntaxException
      */
     ASTNode parse() throws SyntaxException {
-        program();
+        Program program = program();
         matchEOF();
-        return null;
+        return program;
     }
 
-    ASTNode expression() throws SyntaxException {
+    Expression expression() throws SyntaxException {
+        Token firstToken = t;
+        Expression expression;
+
+        Expression e0;
+        Expression e1;
+
         try {
-            term();
+            e0 = term();
             while (t.kind == LT || t.kind == LE || t.kind == GT || t.kind == GE || t.kind == EQUAL || t.kind == NOTEQUAL) {
+                Token op = t;
                 consume();
-                term();
+                e1 = term();
+                e0 = new BinaryExpression(firstToken, e0, op, e1);
             }
+            expression = e0;
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal expression :: " + e.getMessage());
         }
 
-        return null;
+        return expression;
     }
 
-    void term() throws SyntaxException {
+    Expression term() throws SyntaxException {
+        Token firstToken = t;
+        Expression expression;
+
+        Expression e0;
+        Expression e1;
+
         try {
-            elem();
+            e0 = elem();
             while (t.kind == PLUS || t.kind == MINUS || t.kind == OR) {
+                Token op = t;
                 consume();
-                elem();
+                e1 = elem();
+                e0 = new BinaryExpression(firstToken, e0, op, e1);
             }
+            expression = e0;
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal term :: " + e.getMessage());
         }
+
+        return expression;
     }
 
-    void elem() throws SyntaxException {
+    Expression elem() throws SyntaxException {
+        Token firstToken = t;
+        Expression expression;
+
+        Expression e0;
+        Expression e1;
+
         try {
-            factor();
+            e0 = factor();
             while (t.kind == TIMES || t.kind == DIV || t.kind == AND || t.kind == MOD) {
+                Token op = t;
                 consume();
-                factor();
+                e1 = factor();
+                e0 = new BinaryExpression(firstToken, e0, op, e1);
             }
+
+            expression = e0;
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal elem :: " + e.getMessage());
         }
+
+        return expression;
     }
 
-    void factor() throws SyntaxException {
+    Expression factor() throws SyntaxException {
+        Token firstToken = t;
+        Expression expression;
         Kind kind = t.kind;
         switch (kind) {
             case IDENT: {
                 consume();
+                expression = new IdentExpression(firstToken);
             }
             break;
             case INT_LIT: {
                 consume();
+                expression = new IntLitExpression(firstToken);
             }
             break;
             case KW_TRUE:
             case KW_FALSE: {
                 consume();
+                expression = new BooleanLitExpression(firstToken);
             }
             break;
             case KW_SCREENWIDTH:
             case KW_SCREENHEIGHT: {
                 consume();
+                expression = new ConstantExpression(firstToken);
             }
             break;
             case LPAREN: {
                 try {
                     consume();
-                    expression();
+                    expression = expression();
                     match(RPAREN);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal factor :: " + e.getMessage());
@@ -125,9 +165,16 @@ public class Parser {
             default:
                 throw new SyntaxException("illegal factor :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return expression;
     }
 
-    ASTNode block() throws SyntaxException {
+    Block block() throws SyntaxException {
+        Token firstToken = t;
+        Block block;
+
+        ArrayList<Dec> decs = new ArrayList<>();
+        ArrayList<Statement> statements = new ArrayList<>();
+
         if (t.kind == LBRACE) {
             HashSet<Kind> decPredictSet = new HashSet<>();
             decPredictSet.add(KW_INTEGER);
@@ -157,90 +204,111 @@ public class Parser {
                 consume();
                 while (decPredictSet.contains(t.kind) || statementPredictSet.contains(t.kind)) {
                     if (decPredictSet.contains(t.kind)) {
-                        dec();
+                        Dec dec = dec();
+                        decs.add(dec);
                     } else if (statementPredictSet.contains(t.kind)) {
-                        statement();
+                        Statement statement = statement();
+                        statements.add(statement);
                     } else {
                         throw new SyntaxException("Hashset error, unexpected branching for " + t.kind);
                     }
                 }
                 match(RBRACE);
+                block = new Block(firstToken, decs, statements);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal block :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal block :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
-        return null;
+        return block;
     }
 
-    ASTNode program() throws SyntaxException {
+    Program program() throws SyntaxException {
+        Token firstToken = t;
+        Program program;
+        ArrayList<ParamDec> paramList = new ArrayList<>();
+
         try {
             match(IDENT);
+            ParamDec paramDec;
             if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
-                paramDec();
+                paramDec = paramDec();
+                paramList.add(paramDec);
                 while (t.kind == COMMA) {
                     consume();
-                    paramDec();
+                    paramDec = paramDec();
+                    paramList.add(paramDec);
                 }
             }
-            block();
+            Block block = block();
+            program = new Program(firstToken, paramList, block);
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal program :: " + e.getMessage());
         }
-        return null;
+        return program;
     }
 
-    ASTNode paramDec() throws SyntaxException {
+    ParamDec paramDec() throws SyntaxException {
+        Token firstToken = t;
+        ParamDec paramDec;
         if (t.kind == KW_URL || t.kind == KW_FILE || t.kind == KW_INTEGER || t.kind == KW_BOOLEAN) {
             try {
                 consume();
-                match(IDENT);
+                Token ident = match(IDENT);
+                paramDec = new ParamDec(firstToken, ident);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal paramDec :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal paramDec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
-        return null;
+        return paramDec;
     }
 
-    ASTNode dec() throws SyntaxException {
+    Dec dec() throws SyntaxException {
+        Token firstToken = t;
+        Dec dec;
         if (t.kind == KW_INTEGER || t.kind == KW_BOOLEAN || t.kind == KW_IMAGE || t.kind == KW_FRAME) {
             try {
                 consume();
-                match(IDENT);
+                Token ident = match(IDENT);
+                dec = new Dec(firstToken, ident);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal dec :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal dec :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
-        return null;
+        return dec;
     }
 
-    ASTNode statement() throws SyntaxException {
+    Statement statement() throws SyntaxException {
+        Token firstToken = t;
+        Statement statement;
+
         Kind kind = t.kind;
         switch (kind) {
             case OP_SLEEP:
                 try {
                     consume();
-                    expression();
+                    Expression expression = expression();
                     match(SEMI);
+                    statement = new SleepStatement(firstToken, expression);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal statement :: " + e.getMessage());
                 }
                 break;
             case KW_WHILE:
                 try {
-                    whileStatement();
+                    statement = whileStatement();
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal statement :: " + e.getMessage());
                 }
                 break;
             case KW_IF:
                 try {
-                    ifStatement();
+                    statement = ifStatement();
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal statement :: " + e.getMessage());
                 }
@@ -249,10 +317,10 @@ public class Parser {
                 try {
                     Token next = scanner.peek();
                     if (next.kind == ASSIGN) {
-                        assign();
+                        statement = assign();
                         match(SEMI);
                     } else if (next.kind == ARROW || next.kind == BARARROW) {
-                        chain();
+                        statement = chain();
                         match(SEMI);
                     } else {
                         throw new SyntaxException("illegal statement :: saw " + t.kind + " after IDENT at " + scanner.getLinePos(t).toString());
@@ -273,7 +341,7 @@ public class Parser {
             case OP_HEIGHT:
             case KW_SCALE:
                 try {
-                    chain();
+                    statement = chain();
                     match(SEMI);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal statement :: " + e.getMessage());
@@ -282,51 +350,73 @@ public class Parser {
             default:
                 throw new SyntaxException("illegal statement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
-        return null;
+        return statement;
     }
 
-    ASTNode assign() throws SyntaxException {
+    AssignmentStatement assign() throws SyntaxException {
+        Token firstToken = t;
+        AssignmentStatement assignmentStatement;
         if (t.kind == IDENT) {
             try {
+                Token ident = t;
                 consume();
                 match(ASSIGN);
-                expression();
+                Expression expression = expression();
+                assignmentStatement = new AssignmentStatement(firstToken, new IdentLValue(ident), expression);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal assign :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
-        return null;
+        return assignmentStatement;
     }
 
-    void chain() throws SyntaxException {
+    Chain chain() throws SyntaxException {
+        Token firstToken = t;
+        Chain chain;
+
+        Chain e0;
+        ChainElem e1;
+        Token arrow;
+
         try {
-            chainElem();
-            arrowOp();
-            chainElem();
+            e0 = chainElem();
+            arrow = arrowOp();
+            e1 = chainElem();
             while (t.kind == ARROW || t.kind == BARARROW) {
+                e0 = new BinaryChain(firstToken, e0, arrow, e1);
+                arrow = t;
                 consume();
-                chainElem();
+                e1 = chainElem();
             }
+
+            chain = new BinaryChain(firstToken, e0, arrow, e1);
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
         }
+
+        return chain;
     }
 
-    void chainElem() throws SyntaxException {
+    ChainElem chainElem() throws SyntaxException {
+        Token firstToken = t;
+        ChainElem chainElem;
+
         Kind kind = t.kind;
 
         switch (kind) {
             case IDENT:
                 consume();
+                chainElem = new IdentChain(firstToken);
                 break;
             case OP_BLUR:
             case OP_GRAY:
             case OP_CONVOLVE:
                 try {
                     consume();
-                    arg();
+                    Tuple arg = arg();
+                    chainElem = new FilterOpChain(firstToken, arg);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal chainElem :: " + e.getMessage());
                 }
@@ -338,7 +428,8 @@ public class Parser {
             case KW_YLOC:
                 try {
                     consume();
-                    arg();
+                    Tuple arg = arg();
+                    chainElem = new FrameOpChain(firstToken, arg);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal chainElem :: " + e.getMessage());
                 }
@@ -348,7 +439,8 @@ public class Parser {
             case KW_SCALE:
                 try {
                     consume();
-                    arg();
+                    Tuple arg = arg();
+                    chainElem = new ImageOpChain(firstToken, arg);
                 } catch (SyntaxException e) {
                     throw new SyntaxException("illegal chainElem :: " + e.getMessage());
                 }
@@ -356,56 +448,72 @@ public class Parser {
             default:
                 throw new SyntaxException("illegal chainElem :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+
+        return chainElem;
     }
 
-    ASTNode arg() throws SyntaxException {
+    Tuple arg() throws SyntaxException {
+        Token firstToken = t;
+        List<Expression> expressionList = new ArrayList<>();
+        Tuple tuple;
         try {
             if (t.kind == LPAREN) {
                 consume();
-                expression();
+                expressionList.add(expression());
                 while (t.kind == COMMA) {
                     consume();
-                    expression();
+                    expressionList.add(expression());
                 }
                 match(RPAREN);
             }
+            tuple = new Tuple(firstToken, expressionList);
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal arg :: " + e.getMessage());
         }
 
-        return null;
+        return tuple;
     }
 
-    void whileStatement() throws SyntaxException {
+    WhileStatement whileStatement() throws SyntaxException {
+        Token firstToken = t;
+        WhileStatement whileStatement;
+
         if (t.kind == KW_WHILE) {
             try {
                 consume();
                 match(LPAREN);
-                expression();
+                Expression expression = expression();
                 match(RPAREN);
-                block();
+                Block block = block();
+                whileStatement = new WhileStatement(firstToken, expression, block);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal whileStatement :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal whileStatement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return whileStatement;
     }
 
-    void ifStatement() throws SyntaxException {
+    IfStatement ifStatement() throws SyntaxException {
+        Token firstToken = t;
+        IfStatement ifStatement;
+
         if (t.kind == KW_IF) {
             try {
                 consume();
                 match(LPAREN);
-                expression();
+                Expression expression = expression();
                 match(RPAREN);
-                block();
+                Block block = block();
+                ifStatement = new IfStatement(firstToken, expression, block);
             } catch (SyntaxException e) {
                 throw new SyntaxException("illegal ifStatement :: " + e.getMessage());
             }
         } else {
             throw new SyntaxException("illegal ifStatement :: saw " + t.kind + " at " + scanner.getLinePos(t).toString());
         }
+        return ifStatement;
     }
 
     void filterOp() throws SyntaxException {
@@ -432,12 +540,15 @@ public class Parser {
         }
     }
 
-    void arrowOp() throws SyntaxException {
+    Token arrowOp() throws SyntaxException {
+        Token arrow;
         try {
-            match(ARROW, BARARROW);
+            arrow = match(ARROW, BARARROW);
         } catch (SyntaxException e) {
             throw new SyntaxException("illegal arrowOp :: " + e.getMessage());
         }
+
+        return arrow;
     }
 
     void relOp() throws SyntaxException {
