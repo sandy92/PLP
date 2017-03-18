@@ -20,6 +20,7 @@ public class TypeCheckVisitorTest {
     public ExpectedException thrown = ExpectedException.none();
 
     // TODO test case where program name is also declared as a variable
+    // TODO Your Visitor class will both decorate the tree and check conditions along the way. If a condition is violated, throw a TypeCheckException.
 
     @Test
     public void testAssignmentBoolLit0() throws Exception {
