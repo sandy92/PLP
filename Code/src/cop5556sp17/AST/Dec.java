@@ -1,15 +1,38 @@
 package cop5556sp17.AST;
 
+import cop5556sp17.Parser;
 import cop5556sp17.Scanner.Token;
 
 public class Dec extends ASTNode {
 
     final Token ident;
+    public Type.TypeName typeName;
 
     public Dec(Token firstToken, Token ident) {
         super(firstToken);
 
         this.ident = ident;
+        try {
+            this.typeName = Type.getTypeName(firstToken);
+        } catch (Parser.SyntaxException e) {
+            throw new IllegalArgumentException("ParserSyntaxException :: " + e.getStackTrace());
+        }
+    }
+
+    public Type.TypeName getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(Type.TypeName typeName) {
+        this.typeName = typeName;
+    }
+
+    @Override
+    public String toString() {
+        return "Dec{" +
+                "ident=" + ident +
+                ", typeName=" + typeName +
+                "} " + super.toString();
     }
 
     public Token getType() {
@@ -18,11 +41,6 @@ public class Dec extends ASTNode {
 
     public Token getIdent() {
         return ident;
-    }
-
-    @Override
-    public String toString() {
-        return "Dec [ident=" + ident + ", firstToken=" + firstToken + "]";
     }
 
 

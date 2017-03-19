@@ -6,6 +6,7 @@ public class FrameOpChain extends ChainElem {
 
     final Tuple tuple;
 
+
     public FrameOpChain(Token firstToken, Tuple arg) {
         super(firstToken);
         this.tuple = arg;

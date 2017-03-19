@@ -18,9 +18,9 @@ public class SymbolTable {
         this.symbolTable = new HashMap<>();
         this.scopeStack = new ArrayDeque<>();
         this.globalScopeLevel = 0;
-    }
 
-    // TODO decide where to enterScope for paramDecs
+        enterScope(); // Puts scope level 0 onto the stack, which helps in storing top-level variables such as paramDecs
+    }
 
     /**
      * to be called when block entered
