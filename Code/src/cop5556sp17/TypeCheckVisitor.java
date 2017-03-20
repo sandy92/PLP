@@ -11,7 +11,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(binaryChain, "TypeCheckVisitor :: BinaryChain can't be null");
         Chain e0 = binaryChain.getE0();
         ChainElem e1 = binaryChain.getE1();
@@ -89,7 +88,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(binaryExpression, "TypeCheckVisitor :: BinaryExpression can't be null");
         Expression e0 = binaryExpression.getE0();
         Expression e1 = binaryExpression.getE1();
@@ -141,7 +139,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitBlock(Block block, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(block, "TypeCheckVisitor :: Block can't be null");
         symtab.enterScope();
 
@@ -168,7 +165,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(filterOpChain, "TypeCheckVisitor :: FilterOpChain can't be null");
         Tuple tuple = filterOpChain.getArg();
 
@@ -183,7 +179,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitFrameOpChain(FrameOpChain frameOpChain, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(frameOpChain, "TypeCheckVisitor :: FrameOpChain can't be null");
         Tuple tuple = frameOpChain.getArg();
         Scanner.Token frameOp = frameOpChain.getFirstToken();
@@ -215,7 +210,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(identChain, "TypeCheckVisitor :: IdentChain can't be null");
         Scanner.Token ident = identChain.getFirstToken();
         Dec dec = symtab.lookup(ident.getText());
@@ -230,7 +224,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(identExpression, "TypeCheckVisitor :: IdentExpression can't be null");
         Scanner.Token ident = identExpression.getFirstToken();
         Dec dec = symtab.lookup(ident.getText());
@@ -246,7 +239,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(ifStatement, "TypeCheckVisitor :: IfStatement can't be null");
         Expression expression = ifStatement.getE();
         expression.visit(this, null);
@@ -268,7 +260,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(sleepStatement, "TypeCheckVisitor :: SleepStatement can't be null");
         Expression expression = sleepStatement.getE();
         expression.visit(this, null);
@@ -280,7 +271,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(whileStatement, "TypeCheckVisitor :: WhileStatement can't be null");
         Expression expression = whileStatement.getE();
         expression.visit(this, null);
@@ -295,15 +285,17 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitDec(Dec declaration, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(declaration, "TypeCheckVisitor :: Dec can't be null");
-        symtab.insert(declaration.getIdent().getText(), declaration);
+        Boolean insertionResult = symtab.insert(declaration.getIdent().getText(), declaration);
+
+        if (insertionResult == false) {
+            throw new TypeCheckException("Unable to declare param '" + declaration.getIdent().getText() + "' of type '" + declaration.getTypeName() + "'. Check if this variable is already declared in the same scope.");
+        }
         return declaration;
     }
 
     @Override
     public Object visitProgram(Program program, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(program, "TypeCheckVisitor :: Program can't be null");
         List<ParamDec> paramDecs = program.getParams();
         for (ParamDec paramDec : paramDecs) {
@@ -316,7 +308,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(assignStatement, "TypeCheckVisitor :: AssignmentStatement can't be null");
         IdentLValue identLValue = assignStatement.getVar();
         identLValue.visit(this, null);
@@ -333,7 +324,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(identX, "TypeCheckVisitor :: IdentLValue can't be null");
         Dec dec = symtab.lookup(identX.getText());
 
@@ -347,9 +337,12 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(paramDec, "TypeCheckVisitor :: ParamDec can't be null");
-        symtab.insert(paramDec.getIdent().getText(), paramDec);
+        Boolean insertionResult = symtab.insert(paramDec.getIdent().getText(), paramDec);
+        if (insertionResult == false) {
+            throw new TypeCheckException("Unable to declare param '" + paramDec.getIdent().getText() + "' of type '" + paramDec.getTypeName() + "'. Check if this variable is already declared in the same scope.");
+        }
+
         return paramDec;
     }
 
@@ -362,7 +355,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(imageOpChain, "TypeCheckVisitor :: ImageOpChain can't be null");
         Tuple tuple = imageOpChain.getArg();
         Scanner.Token imageOp = imageOpChain.getFirstToken();
@@ -389,7 +381,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
     @Override
     public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-        // TODO Auto-generated method stub
         Objects.requireNonNull(tuple, "TypeCheckVisitor :: Tuple can't be null");
         List<Expression> expressionList = tuple.getExprList();
 

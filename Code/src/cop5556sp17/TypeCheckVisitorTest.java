@@ -24,16 +24,10 @@ public class TypeCheckVisitorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    // TODO test case where program name is also declared as a variable
-    // TODO Your Visitor class will both decorate the tree and check conditions along the way. If a condition is violated, throw a TypeCheckException.
-
     // Program
-    // TODO Test complex programs i.e., random codes from previous test cases
-
-
     @Test
     public void testRandProg() throws Exception {
-        String input = "randProg {i <- 0;\n\nwhile(i < 10){\n\n integer abc   if( i % 2 == 0){\n\n        j <- i / 2; \n\n        show(j) -> width(2);\n\n    }\n\n    i <- i + 1;\n\n}}";
+        String input = "randProg {integer i \n i <- 0;\n\nwhile(i < 10){\n\n integer abc   if( i == 0){\n\n  integer j frame x     j <- i / 2; \n\n      x ->  show -> xloc;\n\n    }\n\n    i <- i + 1;\n\n}}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -46,9 +40,6 @@ public class TypeCheckVisitorTest {
     }
 
     // ParamDec
-    // TODO Test paramDec with multiple params (each one with different types). Assertion by using lookup into the symbol table
-    // TODO Negative - Test paramDec with multiple params of the same name. Should throw a TypeCheckException
-    // TODO Test a valid case with paramDec containing same name as the program name
     @Test
     public void testParamDec() throws Exception {
         String input = "p url a, file b, integer c, boolean d {boolean y \ny <- true;}";
@@ -93,13 +84,7 @@ public class TypeCheckVisitorTest {
         program.visit(typeCheckVisitor, null);
     }
 
-    // Block
-    // TODO Nothing to test here
-
     // Dec
-    // TODO Test Dec with multiple params (each one with different types). Assertion by using lookup into the symbol table
-    // TODO Test Dec with multiple params of the same name. Should throw a TypeCheckException
-    // TODO Test a valid case with Dec containing same name as the program name
     @Test
     public void testDec() throws Exception {
         String input = "p {integer a boolean b image c frame d \n b <- true;}";
@@ -146,7 +131,6 @@ public class TypeCheckVisitorTest {
 
     // Statement
     // SleepStatement
-    // TODO positive and negative test case
     @Test
     public void testSleepStatement() throws Exception {
         String input = "sleep 20 ;";
@@ -182,7 +166,6 @@ public class TypeCheckVisitorTest {
     }
 
     // AssignmentStatement
-    // TODO positive and negative test case for each type
     @Test
     public void testAssignmentBoolLit0() throws Exception {
         String input = "p {\nboolean y \ny <- false;}";
@@ -278,12 +261,9 @@ public class TypeCheckVisitorTest {
     // Chain
     // ChainElem
     // IdentChain
-    // TODO Negative - test case where ident has not been declared
-    // TODO Negative - test case where ident has been declared but not visible in this scope
-    // TODO - test case where ident is declared and visible. Write assertions for identChain.type and indent.type
     @Test
     public void testIdentChain() throws Exception {
-        String input = "p {\ninteger x boolean y \nx -> y;}";
+        String input = "p {\nimage x boolean y \nx -> y;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -304,12 +284,10 @@ public class TypeCheckVisitorTest {
         assertEquals(IdentChain.class, e1.getClass());
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-        e0.visit(typeCheckVisitor, null);
-        e1.visit(typeCheckVisitor, null);
+        program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.INTEGER, e0.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, e0.getTypeName());
         assertEquals(Type.TypeName.BOOLEAN, e1.getTypeName());
-        // TODO what about the other condition ?
     }
 
     @Test
@@ -365,8 +343,6 @@ public class TypeCheckVisitorTest {
     }
 
     // FilterOpChain
-    // TODO Negative - test case where tuple size is not zero
-    // TODO - test case where tuple size is zero. Write assertions for FilterOpChain.type
     @Test
     public void testFilterOpChain() throws Exception {
         String input = "p {blur -> gray;}";
@@ -421,10 +397,9 @@ public class TypeCheckVisitorTest {
     }
 
     // FrameOpChain
-    // TODO positive and negative test cases for each of the if else branch
     @Test
     public void testFrameOpChain0() throws Exception {
-        String input = "p {show -> yloc;}";
+        String input = "p {frame a \n a -> show -> yloc;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -439,25 +414,34 @@ public class TypeCheckVisitorTest {
         BinaryChain binaryChain = (BinaryChain) statement;
         Chain e0 = binaryChain.getE0();
         Chain e1 = binaryChain.getE1();
-        assertEquals(FrameOpChain.class, e0.getClass());
+        assertEquals(BinaryChain.class, e0.getClass());
         assertEquals(FrameOpChain.class, e1.getClass());
 
-        FrameOpChain frameOpChain0 = (FrameOpChain) e0;
+        BinaryChain binaryChain0 = (BinaryChain) e0;
         FrameOpChain frameOpChain1 = (FrameOpChain) e1;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.NONE, frameOpChain0.getTypeName());
+        assertEquals(Type.TypeName.FRAME, binaryChain0.getTypeName());
         assertEquals(Type.TypeName.INTEGER, frameOpChain1.getTypeName());
-
-        assertEquals(Scanner.Kind.KW_SHOW, frameOpChain0.getKind());
         assertEquals(Scanner.Kind.KW_YLOC, frameOpChain1.getKind());
+
+        e0 = binaryChain0.getE0();
+        e1 = binaryChain0.getE1();
+
+        assertEquals(IdentChain.class, e0.getClass());
+        assertEquals(FrameOpChain.class, e1.getClass());
+
+        frameOpChain1 = (FrameOpChain) e1;
+
+        assertEquals(Type.TypeName.NONE, frameOpChain1.getTypeName());
+        assertEquals(Scanner.Kind.KW_SHOW, frameOpChain1.getKind());
     }
 
     @Test
     public void testFrameOpChain1() throws Exception {
-        String input = "p {xloc -> hide;}";
+        String input = "p {frame a \n a -> hide -> xloc;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -472,25 +456,34 @@ public class TypeCheckVisitorTest {
         BinaryChain binaryChain = (BinaryChain) statement;
         Chain e0 = binaryChain.getE0();
         Chain e1 = binaryChain.getE1();
-        assertEquals(FrameOpChain.class, e0.getClass());
+        assertEquals(BinaryChain.class, e0.getClass());
         assertEquals(FrameOpChain.class, e1.getClass());
 
-        FrameOpChain frameOpChain0 = (FrameOpChain) e0;
+        BinaryChain binaryChain0 = (BinaryChain) e0;
         FrameOpChain frameOpChain1 = (FrameOpChain) e1;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.INTEGER, frameOpChain0.getTypeName());
-        assertEquals(Type.TypeName.NONE, frameOpChain1.getTypeName());
+        assertEquals(Type.TypeName.FRAME, binaryChain0.getTypeName());
+        assertEquals(Type.TypeName.INTEGER, frameOpChain1.getTypeName());
+        assertEquals(Scanner.Kind.KW_XLOC, frameOpChain1.getKind());
 
-        assertEquals(Scanner.Kind.KW_XLOC, frameOpChain0.getKind());
+        e0 = binaryChain0.getE0();
+        e1 = binaryChain0.getE1();
+
+        assertEquals(IdentChain.class, e0.getClass());
+        assertEquals(FrameOpChain.class, e1.getClass());
+
+        frameOpChain1 = (FrameOpChain) e1;
+
+        assertEquals(Type.TypeName.NONE, frameOpChain1.getTypeName());
         assertEquals(Scanner.Kind.KW_HIDE, frameOpChain1.getKind());
     }
 
     @Test
     public void testFrameOpChain2() throws Exception {
-        String input = "p {move (23,53) -> show -> xloc;}";
+        String input = "p {frame a \n a -> move (23,53) -> show -> xloc;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -513,27 +506,38 @@ public class TypeCheckVisitorTest {
         BinaryChain binaryChain1 = (BinaryChain) e0;
         Chain e2 = binaryChain1.getE0();
         Chain e3 = binaryChain1.getE1();
-        assertEquals(FrameOpChain.class, e2.getClass());
+        assertEquals(BinaryChain.class, e2.getClass());
         assertEquals(FrameOpChain.class, e3.getClass());
 
-        FrameOpChain frameOpChain0 = (FrameOpChain) e2;
+        binaryChain1 = (BinaryChain) e2;
+
         FrameOpChain frameOpChain1 = (FrameOpChain) e3;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.NONE, frameOpChain0.getTypeName());
         assertEquals(Type.TypeName.NONE, frameOpChain1.getTypeName());
         assertEquals(Type.TypeName.INTEGER, frameOpChain2.getTypeName());
 
-        assertEquals(Scanner.Kind.KW_MOVE, frameOpChain0.getKind());
         assertEquals(Scanner.Kind.KW_SHOW, frameOpChain1.getKind());
         assertEquals(Scanner.Kind.KW_XLOC, frameOpChain2.getKind());
+
+        e2 = binaryChain1.getE0();
+        e3 = binaryChain1.getE1();
+
+        assertEquals(IdentChain.class, e2.getClass());
+        assertEquals(FrameOpChain.class, e3.getClass());
+
+        frameOpChain2 = (FrameOpChain) e3;
+
+        assertEquals(Scanner.Kind.KW_MOVE, frameOpChain2.getKind());
+
+
     }
 
     @Test
     public void testFrameOpChainError0() throws Exception {
-        String input = "p {show (23) -> yloc;}";
+        String input = "p {frame a \n a -> show (23);}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -548,7 +552,7 @@ public class TypeCheckVisitorTest {
         BinaryChain binaryChain = (BinaryChain) statement;
         Chain e0 = binaryChain.getE0();
         Chain e1 = binaryChain.getE1();
-        assertEquals(FrameOpChain.class, e0.getClass());
+        assertEquals(IdentChain.class, e0.getClass());
         assertEquals(FrameOpChain.class, e1.getClass());
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
@@ -559,7 +563,7 @@ public class TypeCheckVisitorTest {
 
     @Test
     public void testFrameOpChainError1() throws Exception {
-        String input = "p {xloc -> hide (23);}";
+        String input = "p {frame a \n a -> hide (23);}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -574,7 +578,7 @@ public class TypeCheckVisitorTest {
         BinaryChain binaryChain = (BinaryChain) statement;
         Chain e0 = binaryChain.getE0();
         Chain e1 = binaryChain.getE1();
-        assertEquals(FrameOpChain.class, e0.getClass());
+        assertEquals(IdentChain.class, e0.getClass());
         assertEquals(FrameOpChain.class, e1.getClass());
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
@@ -585,7 +589,7 @@ public class TypeCheckVisitorTest {
 
     @Test
     public void testFrameOpChainError2() throws Exception {
-        String input = "p {move (23) -> show -> xloc;}";
+        String input = "p {frame a \n a -> move (23);}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -598,15 +602,9 @@ public class TypeCheckVisitorTest {
         Statement statement = statements.get(0);
         assertEquals(BinaryChain.class, statement.getClass());
         BinaryChain binaryChain = (BinaryChain) statement;
-        Chain e0 = binaryChain.getE0();
-        Chain e1 = binaryChain.getE1();
-        assertEquals(BinaryChain.class, e0.getClass());
-        assertEquals(FrameOpChain.class, e1.getClass());
-
-        BinaryChain binaryChain1 = (BinaryChain) e0;
-        Chain e2 = binaryChain1.getE0();
-        Chain e3 = binaryChain1.getE1();
-        assertEquals(FrameOpChain.class, e2.getClass());
+        Chain e2 = binaryChain.getE0();
+        Chain e3 = binaryChain.getE1();
+        assertEquals(IdentChain.class, e2.getClass());
         assertEquals(FrameOpChain.class, e3.getClass());
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
@@ -617,10 +615,9 @@ public class TypeCheckVisitorTest {
     }
 
     // ImageOpChain
-    // TODO positive and negative test cases for each of the if else branch
     @Test
     public void testImageOpChain0() throws Exception {
-        String input = "p {width -> scale (122);}";
+        String input = "p {scale (122) -> width;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -644,11 +641,11 @@ public class TypeCheckVisitorTest {
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.INTEGER, imageOpChain0.getTypeName());
-        assertEquals(Type.TypeName.IMAGE, imageOpChain1.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, imageOpChain0.getTypeName());
+        assertEquals(Type.TypeName.INTEGER, imageOpChain1.getTypeName());
 
-        assertEquals(Scanner.Kind.OP_WIDTH, imageOpChain0.getKind());
-        assertEquals(Scanner.Kind.KW_SCALE, imageOpChain1.getKind());
+        assertEquals(Scanner.Kind.KW_SCALE, imageOpChain0.getKind());
+        assertEquals(Scanner.Kind.OP_WIDTH, imageOpChain1.getKind());
     }
 
     @Test
@@ -737,7 +734,6 @@ public class TypeCheckVisitorTest {
     }
 
     // BinaryChain
-    // TODO positive and negative test cases for each of the legal combination
     @Test
     public void testBinaryChain0() throws Exception {
         String input = "p url a {image b \n a -> b;}";
@@ -749,13 +745,13 @@ public class TypeCheckVisitorTest {
         List<Statement> statements = block.getStatements();
         assertEquals(1, statements.size());
         Statement statement = statements.get(0);
-        assertEquals(Chain.class, statement.getClass());
-        Chain chain = (Chain) statement;
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.IMAGE, chain.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
     }
 
     @Test
@@ -769,13 +765,13 @@ public class TypeCheckVisitorTest {
         List<Statement> statements = block.getStatements();
         assertEquals(1, statements.size());
         Statement statement = statements.get(0);
-        assertEquals(Chain.class, statement.getClass());
-        Chain chain = (Chain) statement;
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.IMAGE, chain.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
     }
 
     @Test
@@ -789,13 +785,13 @@ public class TypeCheckVisitorTest {
         List<Statement> statements = block.getStatements();
         assertEquals(1, statements.size());
         Statement statement = statements.get(0);
-        assertEquals(Chain.class, statement.getClass());
-        Chain chain = (Chain) statement;
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.FRAME, chain.getTypeName());
+        assertEquals(Type.TypeName.FRAME, binaryChain.getTypeName());
     }
 
     @Test
@@ -809,13 +805,13 @@ public class TypeCheckVisitorTest {
         List<Statement> statements = block.getStatements();
         assertEquals(1, statements.size());
         Statement statement = statements.get(0);
-        assertEquals(Chain.class, statement.getClass());
-        Chain chain = (Chain) statement;
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.NONE, chain.getTypeName());
+        assertEquals(Type.TypeName.NONE, binaryChain.getTypeName());
     }
 
     @Test
@@ -829,13 +825,13 @@ public class TypeCheckVisitorTest {
         List<Statement> statements = block.getStatements();
         assertEquals(1, statements.size());
         Statement statement = statements.get(0);
-        assertEquals(Chain.class, statement.getClass());
-        Chain chain = (Chain) statement;
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
 
         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
         program.visit(typeCheckVisitor, null);
 
-        assertEquals(Type.TypeName.IMAGE, chain.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
     }
 
     @Test
@@ -855,13 +851,13 @@ public class TypeCheckVisitorTest {
             List<Statement> statements = block.getStatements();
             assertEquals(1, statements.size());
             Statement statement = statements.get(0);
-            assertEquals(Chain.class, statement.getClass());
-            Chain chain = (Chain) statement;
+            assertEquals(BinaryChain.class, statement.getClass());
+            BinaryChain binaryChain = (BinaryChain) statement;
 
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             program.visit(typeCheckVisitor, null);
 
-            assertEquals(Type.TypeName.INTEGER, chain.getTypeName());
+            assertEquals(Type.TypeName.INTEGER, binaryChain.getTypeName());
         }
     }
 
@@ -881,13 +877,13 @@ public class TypeCheckVisitorTest {
             List<Statement> statements = block.getStatements();
             assertEquals(1, statements.size());
             Statement statement = statements.get(0);
-            assertEquals(Chain.class, statement.getClass());
-            Chain chain = (Chain) statement;
+            assertEquals(BinaryChain.class, statement.getClass());
+            BinaryChain binaryChain = (BinaryChain) statement;
 
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             program.visit(typeCheckVisitor, null);
 
-            assertEquals(Type.TypeName.FRAME, chain.getTypeName());
+            assertEquals(Type.TypeName.FRAME, binaryChain.getTypeName());
         }
     }
 
@@ -911,21 +907,19 @@ public class TypeCheckVisitorTest {
             List<Statement> statements = block.getStatements();
             assertEquals(1, statements.size());
             Statement statement = statements.get(0);
-            assertEquals(Chain.class, statement.getClass());
-            Chain chain = (Chain) statement;
+            assertEquals(BinaryChain.class, statement.getClass());
+            BinaryChain binaryChain = (BinaryChain) statement;
 
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             program.visit(typeCheckVisitor, null);
 
-            assertEquals(Type.TypeName.IMAGE, chain.getTypeName());
+            assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
         }
     }
 
     @Test
     public void testBinaryChainError() throws Exception {
         List<String> inputList = new ArrayList<>();
-        inputList.add("p {image a \n a -> true;}");
-        inputList.add("p file a {a |-> true;}");
         inputList.add("p {image a frame b \n a |-> b;}");
         inputList.add("p {frame a \n a |-> xloc;}");
         inputList.add("p {frame a \n a |-> yloc;}");
@@ -945,7 +939,7 @@ public class TypeCheckVisitorTest {
             List<Statement> statements = block.getStatements();
             assertEquals(1, statements.size());
             Statement statement = statements.get(0);
-            assertEquals(Chain.class, statement.getClass());
+            assertEquals(BinaryChain.class, statement.getClass());
 
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             thrown.expect(TypeCheckVisitor.TypeCheckException.class);
@@ -955,7 +949,6 @@ public class TypeCheckVisitorTest {
     }
 
     // WhileStatement
-    // TODO positive and negative test cases. The expression in each of these test cases can be literals or idents/expression
     @Test
     public void testWhileStatement0() throws Exception {
         String input = "p {boolean y \ny <- true; while(y) {y <- false;} }";
@@ -1045,7 +1038,6 @@ public class TypeCheckVisitorTest {
     }
 
     // IfStatement
-    // TODO positive and negative test cases. The expression in each of these test cases can be literals or idents/expression
     @Test
     public void testIfStatement0() throws Exception {
         String input = "p {boolean y \ny <- true; if(y) {y <- false;} }";
@@ -1136,9 +1128,6 @@ public class TypeCheckVisitorTest {
 
     // Expression
     // IdentExpression
-    // TODO Negative - test case where ident has not been declared
-    // TODO Negative - test case where ident has been declared but not visible in this scope
-    // TODO - test case where ident is declared and visible. Write assertions for identExpression.type and identExpression.dec
     @Test
     public void testIdentExpression() throws Exception {
         String input = "p {\ninteger x integer y \nx <- 1; \ny <- x;}";
@@ -1215,9 +1204,6 @@ public class TypeCheckVisitorTest {
     }
 
     // IdentLValue
-    // TODO Negative - test case where ident has not been declared
-    // TODO Negative - test case where ident has been declared but not visible in this scope
-    // TODO - test case where ident is declared and visible. Write assertions for identLValue.dec
     @Test
     public void testIdentLValue() throws Exception {
         String input = "p {\ninteger x integer y \nx <- 1; \ny <- x;}";
@@ -1368,7 +1354,6 @@ public class TypeCheckVisitorTest {
     }
 
     // BinaryExpression
-    // TODO positive and negative test cases for each of the legal combination
     @Test
     public void testBinaryExpr0() throws Exception {
         String input = "1+2-3";
@@ -1472,18 +1457,25 @@ public class TypeCheckVisitorTest {
 
     @Test
     public void testBinaryExpr5() throws Exception {
-        String input = "1 < 2 <= 3 > 4 >= 5";
-        Scanner scanner = new Scanner(input);
-        scanner.scan();
-        Parser parser = new Parser(scanner);
-        Expression expression = parser.expression();
-        assertEquals(BinaryExpression.class, expression.getClass());
-        BinaryExpression binaryExpression = (BinaryExpression) expression;
+        List<String> inputList = new ArrayList<>();
+        inputList.add("1 < 2");
+        inputList.add("2 <= 3");
+        inputList.add("3 > 4");
+        inputList.add("4 >= 5");
 
-        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-        binaryExpression.visit(typeCheckVisitor, null);
+        for (String input : inputList) {
+            Scanner scanner = new Scanner(input);
+            scanner.scan();
+            Parser parser = new Parser(scanner);
+            Expression expression = parser.expression();
+            assertEquals(BinaryExpression.class, expression.getClass());
+            BinaryExpression binaryExpression = (BinaryExpression) expression;
 
-        assertEquals(Type.TypeName.BOOLEAN, binaryExpression.getTypeName());
+            TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+            binaryExpression.visit(typeCheckVisitor, null);
+
+            assertEquals(Type.TypeName.BOOLEAN, binaryExpression.getTypeName());
+        }
     }
 
     @Test
@@ -1691,9 +1683,6 @@ public class TypeCheckVisitorTest {
     }
 
     // Tuple
-    // TODO Condition succeeds for empty tuple
-    // TODO Condition succeeds for non-empty tuple
-    // TODO Negative - Condition fails for list of expressions which have different types
     @Test
     public void testTupleForNonIntegerExpressions() throws Exception {
         String input = "  (5, false, screenheight, 2*3+5 , 6>4, screenwidth)";
