@@ -291,6 +291,8 @@ public class TypeCheckVisitor implements ASTVisitor {
         if (insertionResult == false) {
             throw new TypeCheckException("Unable to declare param '" + declaration.getIdent().getText() + "' of type '" + declaration.getTypeName() + "'. Check if this variable is already declared in the same scope.");
         }
+
+        declaration.setTypeName(Type.getTypeName(declaration.getType()));
         return declaration;
     }
 
@@ -343,6 +345,7 @@ public class TypeCheckVisitor implements ASTVisitor {
             throw new TypeCheckException("Unable to declare param '" + paramDec.getIdent().getText() + "' of type '" + paramDec.getTypeName() + "'. Check if this variable is already declared in the same scope.");
         }
 
+        paramDec.setTypeName(Type.getTypeName(paramDec.getType()));
         return paramDec;
     }
 
