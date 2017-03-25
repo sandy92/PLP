@@ -33,13 +33,19 @@ public class Type {
     }
 
     public static enum TypeName {
-        INTEGER,
-        BOOLEAN,
-        IMAGE,
-        FRAME,
-        URL,
-        FILE,
-        NONE;
+        INTEGER("I"),
+        BOOLEAN("Z"),
+        IMAGE("Ljava/awt/image/BufferedImage;"),
+        FRAME("Lcop5556sp17/MyFrame;"),
+        URL("Ljava/net/URL;"),
+        FILE("Ljava/io/File;"),
+        NONE(null);
+
+        String jvmType;
+
+        TypeName(String jvmType) {
+            this.jvmType = jvmType;
+        }
 
         public boolean isType(TypeName... types) {
             for (TypeName type : types) {
@@ -47,5 +53,16 @@ public class Type {
             }
             return false;
         }
+
+        public String getJVMTypeDesc() {
+            return jvmType;
+        }
+
+        //precondition: is not I or Z
+        public String getJVMClass() {
+            return jvmType.substring(1, jvmType.length() - 1);  //removes L and ;
+        }
+
+
     }
 }
