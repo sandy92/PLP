@@ -135,7 +135,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
     public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg) throws Exception {
         assignStatement.getE().visit(this, arg);
         CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-//        CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getType()); // TODO the starter jar had getType instead of getTypeName. Will it create a problem ?
         CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
         assignStatement.getVar().visit(this, arg);
         return null;

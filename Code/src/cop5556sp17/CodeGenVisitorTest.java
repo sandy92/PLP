@@ -2,21 +2,63 @@ package cop5556sp17;
 
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.Program;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
 
 public class CodeGenVisitorTest {
 
     static final boolean doPrint = true;
     boolean devel = false;
     boolean grade = true;
+    private PrintStream stdout;
+    private ByteArrayOutputStream outputStream;
 
     static void show(Object s) {
         if (doPrint) {
             System.out.println(s);
         }
+    }
+
+    private void assertProgramValidity(String inputCode, String[] args, String expectedOutput) throws Exception {
+        Scanner scanner = new Scanner(inputCode);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Program program = (Program) parser.parse();
+        TypeCheckVisitor v = new TypeCheckVisitor();
+        program.visit(v, null);
+
+        CodeGenVisitor cv = new CodeGenVisitor(devel, grade, null);
+        byte[] bytecode = (byte[]) program.visit(cv, null);
+
+        String programName = program.getName();
+        // TODO do we need to save the class files on disk ?
+
+        Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
+        instance.run();
+
+        String actualOutput = outputStream.toString().trim();
+
+        assertEquals("Invalid Output \n Program => " + inputCode, expectedOutput, actualOutput);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        stdout = System.out;
+        outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        System.setOut(stdout);
     }
 
     @Test
@@ -53,5 +95,14 @@ public class CodeGenVisitorTest {
         instance.run();
     }
 
+    @Test
+    public void testEmptyProgWithAssertions() throws Exception {
+        String inputCode = "emptyProg {}";
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "");
+    }
+
+    // TODO expression in if or while statement is a combination of multiple expressions like 2+3 == 1+4 or ((2 == 2) && (1==1))
 
 }
