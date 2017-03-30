@@ -46,7 +46,7 @@ public class CodeGenVisitorTest {
 
         String actualOutput = outputStream.toString().trim();
 
-        assertEquals("Invalid Output \n Program => " + inputCode, expectedOutput, actualOutput);
+        assertEquals("Invalid Output\n -------------------- \n" + inputCode + "\n --------------------", expectedOutput, actualOutput);
     }
 
     @Before
@@ -103,6 +103,137 @@ public class CodeGenVisitorTest {
         assertProgramValidity(inputCode, args, "");
     }
 
-    // TODO expression in if or while statement is a combination of multiple expressions like 2+3 == 1+4 or ((2 == 2) && (1==1))
+    @Test
+    public void testParamDecProg0() throws Exception {
+        String[] input = new String[]{
+                "paramDecProg0 integer b, boolean c {",
+                "b <- 2;",
+                "c <- true;",
+                "c <- false;",
+                "b <- 3;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{"1", "false"};
 
+        assertProgramValidity(inputCode, args, "2truefalse3");
+    }
+
+    @Test
+    public void testdecProg0() throws Exception {
+        String[] input = new String[]{
+                "decProg0 integer a {",
+                "integer b boolean c boolean d",
+                "a <- 3;",
+                "b <- 4;",
+                "c <- false;",
+                "b <- 5;",
+                "d <- true;",
+                "a <- 6;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{"1"};
+
+        assertProgramValidity(inputCode, args, "34false5true6");
+    }
+
+    @Test
+    public void testIfStatementProg0() throws Exception {
+        String[] input = new String[]{
+                "ifStatementProg0 integer a {",
+                "boolean b",
+                "b <- true;",
+                "if(b) { a <- 4; }",
+                "b <- false;",
+                "if(b) { a <- 5; }",
+                "b <- true;",
+                "if(b) { a <- 6; }",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{"0"};
+
+        assertProgramValidity(inputCode, args, "46");
+    }
+
+    @Test
+    public void testIfStatementProg1() throws Exception {
+        String[] input = new String[]{
+                "ifStatementProg0 integer a {",
+                "if(2 != 3) { a <- 1; }",
+                "if(2 == 3) { a <- 2; }",
+                "if(5 != 5) { a <- 3; }",
+                "if(5 == 5) { a <- 4; }",
+                "if(false == false) { a <- 5; }",
+                "if(false != false) { a <- 6; }",
+                "if(true == false) { a <- 7; }",
+                "if(true != false) { a <- 8; }",
+                "if(true != true) { a <- 9; }",
+                "if(true == true) { a <- 10; }",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{"0"};
+
+        assertProgramValidity(inputCode, args, "145810");
+    }
+
+    @Test
+    public void testIfStatementProg2() throws Exception {
+        String[] input = new String[]{
+                "ifStatementProg0 {",
+                "integer a",
+                "if(5 == 5) { a <- 4; }",
+                "if(false < false) { a <- 5; }",
+                "if(false <= false) { a <- 6; }",
+                "if(true <= false) { a <- 7; }",
+                "if(true >= false) { a <- 8; }",
+                "if(true >= true) { a <- 9; }",
+                "if(true > false) { a <- 10; }",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "468910");
+    }
+
+    @Test
+    public void testWhileStatementProg0() throws Exception {
+        String[] input = new String[]{
+                "whileStatementProg0 {",
+                "integer a boolean b",
+                "a <- 1;",
+                "while(a <= 3) {a <- a + 1;}",
+                "while(a > 1) {a <- a - 1;}",
+                "while(a < 3) {a <- a + 1;}",
+                "while(a >= 1) {a <- a - 1;}",
+                "b <- false;",
+                "while(b) { b <- true; }",
+                "b <- true;",
+                "while(b) { b <- false; }",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "12343212321falsetruefalse");
+    }
+
+    @Test
+    public void testWhileStatementProg1() throws Exception {
+        String[] input = new String[]{
+                "whileStatementProg0 {",
+                "integer a boolean b integer c boolean d",
+                "a <- 1;",
+                "b <- true;",
+                "while(a < 3){ if(b){ c <- 7; while(c <= 8){ c <- c +1; } } a <- a+1; if(2+3 == 1+4) {d <- false;} }",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "1true7892false7893false");
+    }
 }
