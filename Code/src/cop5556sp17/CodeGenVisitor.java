@@ -166,7 +166,160 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg) throws Exception {
-        //TODO  Implement this
+        binaryExpression.getE0().visit(this, null);
+        binaryExpression.getE1().visit(this, null);
+
+        Label startLabel;
+        Label endLabel;
+
+        Expression e0 = binaryExpression.getE0();
+        Expression e1 = binaryExpression.getE1();
+
+        Scanner.Token op = binaryExpression.getOp();
+
+        switch (op.kind) {
+            case EQUAL:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPEQ, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case NOTEQUAL:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPNE, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case LT:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPLT, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case GT:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPGT, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case LE:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPLE, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case GE:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                    case BOOLEAN:
+                        startLabel = new Label();
+                        endLabel = new Label();
+                        mv.visitJumpInsn(IF_ICMPGE, startLabel);
+                        mv.visitInsn(ICONST_0);
+                        mv.visitJumpInsn(GOTO, endLabel);
+                        mv.visitLabel(startLabel);
+                        mv.visitInsn(ICONST_1);
+                        mv.visitLabel(endLabel);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case PLUS:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                        mv.visitInsn(IADD);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case MINUS:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                        mv.visitInsn(ISUB);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case TIMES:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                        mv.visitInsn(IMUL);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case DIV:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                        mv.visitInsn(IDIV);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            default:
+                throw new RuntimeException("Invalid op: " + op.getText() + " at " + op.getLinePos());
+        }
+
         return null;
     }
 
@@ -287,7 +440,17 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
-        //TODO Implement this
+        ifStatement.getE().visit(this, null);
+        Label startBlock = new Label();
+        Label endBlock = new Label();
+
+        mv.visitJumpInsn(IFEQ, endBlock);
+
+        mv.visitLabel(startBlock);
+        ifStatement.getB().visit(this, null);
+        mv.visitLabel(endBlock);
+
+        visitLocalVariablesInBlock(mv, ifStatement.getB(), startBlock, endBlock);
         return null;
     }
 
@@ -361,7 +524,22 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
-        //TODO Implement this
+        Label guard = new Label();
+        Label startBlock = new Label();
+        Label endBlock = new Label();
+
+        mv.visitJumpInsn(GOTO, guard);
+
+        mv.visitLabel(startBlock);
+        whileStatement.getB().visit(this, null);
+        mv.visitLabel(endBlock);
+
+        mv.visitLabel(guard);
+        whileStatement.getE().visit(this, null);
+
+        mv.visitJumpInsn(IFNE, startBlock);
+
+        visitLocalVariablesInBlock(mv, whileStatement.getB(), startBlock, endBlock);
         return null;
     }
 

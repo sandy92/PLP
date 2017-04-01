@@ -40,6 +40,11 @@ public class CodeGenVisitorTest {
 
         String programName = program.getName();
 
+//        String classFileName = "bin/" + programName + ".class";
+//        OutputStream output = new FileOutputStream(classFileName);
+//        output.write(bytecode);
+//        output.close();
+
         Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
         instance.run();
 
@@ -161,7 +166,7 @@ public class CodeGenVisitorTest {
     @Test
     public void testIfStatementProg1() throws Exception {
         String[] input = new String[]{
-                "ifStatementProg0 integer a {",
+                "ifStatementProg1 integer a {",
                 "if(2 != 3) { a <- 1; }",
                 "if(2 == 3) { a <- 2; }",
                 "if(5 != 5) { a <- 3; }",
@@ -183,7 +188,7 @@ public class CodeGenVisitorTest {
     @Test
     public void testIfStatementProg2() throws Exception {
         String[] input = new String[]{
-                "ifStatementProg0 {",
+                "ifStatementProg2 {",
                 "integer a",
                 "if(5 == 5) { a <- 4; }",
                 "if(false < false) { a <- 5; }",
@@ -208,8 +213,8 @@ public class CodeGenVisitorTest {
                 "a <- 1;",
                 "while(a <= 3) {a <- a + 1;}",
                 "while(a > 1) {a <- a - 1;}",
-                "while(a < 3) {a <- a + 1;}",
-                "while(a >= 1) {a <- a - 1;}",
+                "while(a < 4) {a <- a * 2;}",
+                "while(a >= 2) {a <- a / 2;}",
                 "b <- false;",
                 "while(b) { b <- true; }",
                 "b <- true;",
@@ -219,22 +224,22 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[0];
 
-        assertProgramValidity(inputCode, args, "12343212321falsetruefalse");
+        assertProgramValidity(inputCode, args, "12343212421falsetruefalse");
     }
 
     @Test
     public void testWhileStatementProg1() throws Exception {
         String[] input = new String[]{
-                "whileStatementProg0 {",
+                "whileStatementProg1 {",
                 "integer a boolean b integer c boolean d",
                 "a <- 1;",
                 "b <- true;",
-                "while(a < 3){ if(b){ c <- 7; while(c <= 8){ c <- c +1; } } a <- a+1; if(2+3 == 1+4) {d <- false;} }",
+                "while(a < 3){ if(b){ c <- 7; while(c <= 8){ boolean a a <-false; c <- c +1; } } a <- a+1; if(2+3 == 1+4) {d <- false;} }",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[0];
 
-        assertProgramValidity(inputCode, args, "1true7892false7893false");
+        assertProgramValidity(inputCode, args, "1true7false8false92false7false8false93false");
     }
 }
