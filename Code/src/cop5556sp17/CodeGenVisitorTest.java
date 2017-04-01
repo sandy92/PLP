@@ -39,7 +39,6 @@ public class CodeGenVisitorTest {
         byte[] bytecode = (byte[]) program.visit(cv, null);
 
         String programName = program.getName();
-        // TODO do we need to save the class files on disk ?
 
         Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
         instance.run();
@@ -107,6 +106,8 @@ public class CodeGenVisitorTest {
     public void testParamDecProg0() throws Exception {
         String[] input = new String[]{
                 "paramDecProg0 integer b, boolean c {",
+                "c <- c;",
+                "b <- b;",
                 "b <- 2;",
                 "c <- true;",
                 "c <- false;",
@@ -116,7 +117,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{"1", "false"};
 
-        assertProgramValidity(inputCode, args, "2truefalse3");
+        assertProgramValidity(inputCode, args, "false12truefalse3");
     }
 
     @Test
@@ -154,7 +155,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{"0"};
 
-        assertProgramValidity(inputCode, args, "46");
+        assertProgramValidity(inputCode, args, "true4falsetrue6");
     }
 
     @Test

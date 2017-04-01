@@ -1,10 +1,7 @@
 package cop5556sp17;
 
 import cop5556sp17.AST.*;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
 import java.util.ArrayList;
 
@@ -20,6 +17,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
     String classDesc;
     String sourceFileName;
     MethodVisitor mv; // visitor of method currently under construction
+    int argIndex;
+    int localVariableIndex;
 
     /**
      * @param DEVEL          used as parameter to genPrint and genPrintTOS
@@ -31,6 +30,25 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
         this.DEVEL = DEVEL;
         this.GRADE = GRADE;
         this.sourceFileName = sourceFileName;
+        this.argIndex = 0;
+        this.localVariableIndex = 1;
+    }
+
+    private void visitLocalVariablesInBlock(MethodVisitor methodVisitor, Block block, Label startLabel, Label endLabel) {
+        // Note: Based on hw5 use cases, it seems ok to write a common function to reuse code.
+        // There is a possibility that in hw6 this function will be removed and the code is duplicated across this file
+        for (Dec dec : block.getDecs()) {
+            switch (dec.getTypeName()) {
+                case INTEGER:
+                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), "I", null, startLabel, endLabel, dec.getSlot());
+                    break;
+                case BOOLEAN:
+                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), "Z", null, startLabel, endLabel, dec.getSlot());
+                    break;
+                default:
+                    throw new RuntimeException("Invalid dec: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
+            }
+        }
     }
 
     @Override
@@ -119,7 +137,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
         Label endRun = new Label();
         mv.visitLabel(endRun);
         mv.visitLocalVariable("this", classDesc, null, startRun, endRun, 0);
-//TODO  visit the local variables
+        visitLocalVariablesInBlock(mv, program.getB(), startRun, endRun);
         mv.visitMaxs(1, 1);
         mv.visitEnd(); // end of run method
 
@@ -154,13 +172,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitBlock(Block block, Object arg) throws Exception {
-        //TODO  Implement this
+        for (Dec dec : block.getDecs()) {
+            dec.visit(this, null);
+        }
+
+        for (Statement statement : block.getStatements()) {
+            statement.visit(this, null);
+        }
+
         return null;
     }
 
     @Override
     public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg) throws Exception {
-        //TODO Implement this
+        mv.visitLdcInsn(booleanLitExpression.getValue());
         return null;
     }
 
@@ -172,7 +197,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitDec(Dec declaration, Object arg) throws Exception {
-        //TODO Implement this
+        declaration.setSlot(localVariableIndex);
+        localVariableIndex++;
         return null;
     }
 
@@ -196,13 +222,65 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-        //TODO Implement this
+        Dec dec = identExpression.getDec();
+        if (dec instanceof ParamDec) {
+            switch (dec.getTypeName()) {
+                case INTEGER:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), "I");
+                    break;
+                case BOOLEAN:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), "Z");
+                    break;
+                default:
+                    throw new RuntimeException("Invalid ident: " + identExpression.getFirstToken().getText() + " at " + identExpression.getFirstToken().getLinePos());
+            }
+        } else {
+            switch (dec.getTypeName()) {
+                case INTEGER:
+                    mv.visitVarInsn(ILOAD, dec.getSlot());
+                    break;
+                case BOOLEAN:
+                    mv.visitVarInsn(ILOAD, dec.getSlot());
+                    break;
+                default:
+                    throw new RuntimeException("Invalid ident: " + identExpression.getFirstToken().getText() + " at " + identExpression.getFirstToken().getLinePos());
+            }
+        }
         return null;
     }
 
     @Override
     public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
-        //TODO Implement this
+        Dec dec = identX.getDec();
+        if (dec instanceof ParamDec) {
+            switch (dec.getTypeName()) {
+                case INTEGER:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(SWAP);
+                    mv.visitFieldInsn(PUTFIELD, className, dec.getIdent().getText(), "I");
+                    break;
+                case BOOLEAN:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(SWAP);
+                    mv.visitFieldInsn(PUTFIELD, className, dec.getIdent().getText(), "Z");
+                    break;
+                default:
+                    throw new RuntimeException("Invalid dec for assignment: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
+            }
+        } else {
+            switch (dec.getTypeName()) {
+                case INTEGER:
+                    mv.visitVarInsn(ISTORE, dec.getSlot());
+                    break;
+                case BOOLEAN:
+                    mv.visitVarInsn(ISTORE, dec.getSlot());
+                    break;
+                default:
+                    throw new RuntimeException("Invalid dec for assignment: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
+            }
+        }
         return null;
 
     }
@@ -221,15 +299,50 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg) throws Exception {
-        //TODO Implement this
+        mv.visitLdcInsn(intLitExpression.getFirstToken().intVal());
         return null;
     }
 
 
     @Override
     public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-        //TODO Implement this
         //For assignment 5, only needs to handle integers and booleans
+        MethodVisitor methodVisitor;
+        FieldVisitor fieldVisitor;
+        if (arg instanceof MethodVisitor) {
+            methodVisitor = (MethodVisitor) arg;
+        } else {
+            throw new RuntimeException("Illegal arg to visitParamDec");
+        }
+
+        paramDec.setSlot(-1); // Slot does not apply to paramDec, hence -1
+
+        switch (paramDec.getTypeName()) {
+            case INTEGER:
+                fieldVisitor = cw.visitField(ACC_PUBLIC, paramDec.getIdent().getText(), "I", null, null);
+                fieldVisitor.visitEnd();
+                methodVisitor.visitVarInsn(ALOAD, 0);
+                methodVisitor.visitVarInsn(ALOAD, 1);
+                methodVisitor.visitLdcInsn(argIndex);
+                methodVisitor.visitInsn(AALOAD);
+                methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", false);
+                methodVisitor.visitFieldInsn(PUTFIELD, className, paramDec.getIdent().getText(), "I");
+                break;
+            case BOOLEAN:
+                fieldVisitor = cw.visitField(ACC_PUBLIC, paramDec.getIdent().getText(), "Z", null, null);
+                fieldVisitor.visitEnd();
+                methodVisitor.visitVarInsn(ALOAD, 0);
+                methodVisitor.visitVarInsn(ALOAD, 1);
+                methodVisitor.visitLdcInsn(argIndex);
+                methodVisitor.visitInsn(AALOAD);
+                methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "parseBoolean", "(Ljava/lang/String;)Z", false);
+                methodVisitor.visitFieldInsn(PUTFIELD, className, paramDec.getIdent().getText(), "Z");
+                break;
+            default:
+                throw new RuntimeException("Unexpected paramDec " + paramDec.getTypeName());
+        }
+        argIndex++;
+
         return null;
 
     }
