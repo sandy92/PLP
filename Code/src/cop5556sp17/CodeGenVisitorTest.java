@@ -6,10 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,8 +16,6 @@ public class CodeGenVisitorTest {
     static final boolean doPrint = true;
     boolean devel = false;
     boolean grade = true;
-    private PrintStream stdout;
-    private ByteArrayOutputStream outputStream;
 
     static void show(Object s) {
         if (doPrint) {
@@ -48,21 +44,19 @@ public class CodeGenVisitorTest {
         Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
         instance.run();
 
-        String actualOutput = outputStream.toString().trim();
+        String actualOutput = PLPRuntimeLog.getString();
 
         assertEquals("Invalid Output\n -------------------- \n" + inputCode + "\n --------------------", expectedOutput, actualOutput);
     }
 
     @Before
-    public void setUp() throws Exception {
-        stdout = System.out;
-        outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+    public void initLog() throws Exception {
+        if (devel || grade) PLPRuntimeLog.initLog();
     }
 
     @After
-    public void tearDown() throws Exception {
-        System.setOut(stdout);
+    public void printLog() throws Exception {
+        System.out.println(PLPRuntimeLog.getString());
     }
 
     @Test
