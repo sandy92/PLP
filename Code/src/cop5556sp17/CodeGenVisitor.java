@@ -316,6 +316,33 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
                 }
                 break;
+            case MOD:
+                switch (e0.getTypeName()) {
+                    case INTEGER:
+                        mv.visitInsn(IREM);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case AND:
+                switch (e0.getTypeName()) {
+                    case BOOLEAN:
+                        mv.visitInsn(IAND);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
+            case OR:
+                switch (e0.getTypeName()) {
+                    case BOOLEAN:
+                        mv.visitInsn(IOR);
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
+                }
+                break;
             default:
                 throw new RuntimeException("Invalid op: " + op.getText() + " at " + op.getLinePos());
         }
@@ -512,7 +539,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-        assert false : "not yet implemented";
+        sleepStatement.getE().visit(this, null);
+        mv.visitInsn(I2L);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false);
         return null;
     }
 

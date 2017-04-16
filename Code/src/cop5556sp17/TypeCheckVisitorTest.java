@@ -263,7 +263,7 @@ public class TypeCheckVisitorTest {
     // IdentChain
     @Test
     public void testIdentChain() throws Exception {
-        String input = "p {\nimage x boolean y \nx -> y;}";
+        String input = "p {\nimage x image y \nx -> y;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);
@@ -287,7 +287,7 @@ public class TypeCheckVisitorTest {
         program.visit(typeCheckVisitor, null);
 
         assertEquals(Type.TypeName.IMAGE, e0.getTypeName());
-        assertEquals(Type.TypeName.BOOLEAN, e1.getTypeName());
+        assertEquals(Type.TypeName.IMAGE, e1.getTypeName());
     }
 
     @Test
@@ -815,26 +815,6 @@ public class TypeCheckVisitorTest {
     }
 
     @Test
-    public void testBinaryChain4() throws Exception {
-        String input = "p {image a boolean b \n a -> b;}";
-        Scanner scanner = new Scanner(input);
-        scanner.scan();
-        Parser parser = new Parser(scanner);
-        Program program = (Program) parser.parse();
-        Block block = program.getB();
-        List<Statement> statements = block.getStatements();
-        assertEquals(1, statements.size());
-        Statement statement = statements.get(0);
-        assertEquals(BinaryChain.class, statement.getClass());
-        BinaryChain binaryChain = (BinaryChain) statement;
-
-        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-        program.visit(typeCheckVisitor, null);
-
-        assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
-    }
-
-    @Test
     public void testBinaryChain5() throws Exception {
         List<String> inputList = new ArrayList<>();
         inputList.add("p {frame a \n a -> xloc;}");
@@ -918,6 +898,46 @@ public class TypeCheckVisitorTest {
     }
 
     @Test
+    public void testBinaryChain8() throws Exception {
+        String input = "p {image a image b \n a -> b;}";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Program program = (Program) parser.parse();
+        Block block = program.getB();
+        List<Statement> statements = block.getStatements();
+        assertEquals(1, statements.size());
+        Statement statement = statements.get(0);
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        program.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.IMAGE, binaryChain.getTypeName());
+    }
+
+    @Test
+    public void testBinaryChain9() throws Exception {
+        String input = "p {integer a integer b \n a -> b;}";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Program program = (Program) parser.parse();
+        Block block = program.getB();
+        List<Statement> statements = block.getStatements();
+        assertEquals(1, statements.size());
+        Statement statement = statements.get(0);
+        assertEquals(BinaryChain.class, statement.getClass());
+        BinaryChain binaryChain = (BinaryChain) statement;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        program.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.INTEGER, binaryChain.getTypeName());
+    }
+
+    @Test
     public void testBinaryChainError() throws Exception {
         List<String> inputList = new ArrayList<>();
         inputList.add("p {image a frame b \n a |-> b;}");
@@ -929,6 +949,9 @@ public class TypeCheckVisitorTest {
         inputList.add("p {frame a \n a |-> hide;}");
         inputList.add("p {frame a \n a |-> move (23,34);}");
         inputList.add("p {image a \n a |-> scale (10);}");
+        inputList.add("p {image a integer b \n a -> b;}");
+        inputList.add("p {image a integer b \n b -> a;}");
+        inputList.add("p {image a boolean b \n a -> b;}");
 
         for (String input : inputList) {
             Scanner scanner = new Scanner(input);
@@ -1527,6 +1550,54 @@ public class TypeCheckVisitorTest {
     }
 
     @Test
+    public void testBinaryExpr9() throws Exception {
+        String input = "4 % 3";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        binaryExpression.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.INTEGER, binaryExpression.getTypeName());
+    }
+
+    @Test
+    public void testBinaryExpr10() throws Exception {
+        String input = "false | true";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        binaryExpression.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.BOOLEAN, binaryExpression.getTypeName());
+    }
+
+    @Test
+    public void testBinaryExpr11() throws Exception {
+        String input = "false & true";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        binaryExpression.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.BOOLEAN, binaryExpression.getTypeName());
+    }
+
+    @Test
     public void testBinaryExprError0() throws Exception {
         String input = "2 * true";
         Scanner scanner = new Scanner(input);
@@ -1669,6 +1740,70 @@ public class TypeCheckVisitorTest {
     @Test
     public void testBinaryExprError7() throws Exception {
         String input = "0 != false";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+
+        binaryExpression.visit(typeCheckVisitor, null);
+    }
+
+    @Test
+    public void testBinaryExprError8() throws Exception {
+        String input = "4 % true";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+
+        binaryExpression.visit(typeCheckVisitor, null);
+    }
+
+    @Test
+    public void testBinaryExprError9() throws Exception {
+        String input = "false % 3";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+
+        binaryExpression.visit(typeCheckVisitor, null);
+    }
+
+    @Test
+    public void testBinaryExprError10() throws Exception {
+        String input = "4 & true";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Expression expression = parser.expression();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+
+        binaryExpression.visit(typeCheckVisitor, null);
+    }
+
+    @Test
+    public void testBinaryExprError11() throws Exception {
+        String input = "false | 1";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);

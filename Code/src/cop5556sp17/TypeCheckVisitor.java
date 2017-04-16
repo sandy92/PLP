@@ -74,8 +74,14 @@ public class TypeCheckVisitor implements ASTVisitor {
                     default:
                         throw new TypeCheckException("Invalid Binary Chain combination :: '" + e0.getTypeName() + "' " + arrowOp.getText() + " '" + e1.getTypeName() + "'");
                 }
-            } else if (e1 instanceof IdentChain && arrowOp.isKind(Scanner.Kind.ARROW)) {
+            } else if (e1 instanceof IdentChain && e1.getTypeName().isType(Type.TypeName.IMAGE) && arrowOp.isKind(Scanner.Kind.ARROW)) {
                 binaryChain.setTypeName(Type.TypeName.IMAGE);
+            } else {
+                throw new TypeCheckException("Invalid Binary Chain combination :: '" + e0.getTypeName() + "' " + arrowOp.getText() + " '" + e1.getTypeName() + "'");
+            }
+        } else if (e0.getTypeName().isType(Type.TypeName.INTEGER)) {
+            if (e1 instanceof IdentChain && e1.getTypeName().isType(Type.TypeName.INTEGER) && arrowOp.isKind(Scanner.Kind.ARROW)) {
+                binaryChain.setTypeName(Type.TypeName.INTEGER);
             } else {
                 throw new TypeCheckException("Invalid Binary Chain combination :: '" + e0.getTypeName() + "' " + arrowOp.getText() + " '" + e1.getTypeName() + "'");
             }
@@ -130,6 +136,18 @@ public class TypeCheckVisitor implements ASTVisitor {
             }
         } else if ((op.isKind(Scanner.Kind.EQUAL) || op.isKind(Scanner.Kind.NOTEQUAL)) && e0.getTypeName().isType(e1.getTypeName())) {
             binaryExpression.setTypeName(Type.TypeName.BOOLEAN);
+        } else if (op.isKind(Scanner.Kind.AND) || op.isKind(Scanner.Kind.OR)) {
+            if (e0.getTypeName().isType(Type.TypeName.BOOLEAN) && e1.getTypeName().isType(Type.TypeName.BOOLEAN)) {
+                binaryExpression.setTypeName(Type.TypeName.BOOLEAN);
+            } else {
+                throw new TypeCheckException("Invalid Binary Expression combination :: '" + e0.getTypeName() + "' '" + op.getText() + "' '" + e1.getTypeName() + "'");
+            }
+        } else if (op.isKind(Scanner.Kind.MOD)) {
+            if (e0.getTypeName().isType(Type.TypeName.INTEGER) && e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                binaryExpression.setTypeName(Type.TypeName.INTEGER);
+            } else {
+                throw new TypeCheckException("Invalid Binary Expression combination :: '" + e0.getTypeName() + "' '" + op.getText() + "' '" + e1.getTypeName() + "'");
+            }
         } else {
             throw new TypeCheckException("Invalid Binary Expression combination :: '" + e0.getTypeName() + "' '" + op.getText() + "' '" + e1.getTypeName() + "'");
         }

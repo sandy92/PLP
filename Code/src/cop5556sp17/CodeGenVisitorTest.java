@@ -6,7 +6,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.OutputStream;
 
 import static org.junit.Assert.assertEquals;
@@ -36,10 +38,10 @@ public class CodeGenVisitorTest {
 
         String programName = program.getName();
 
-//        String classFileName = "bin/" + programName + ".class";
-//        OutputStream output = new FileOutputStream(classFileName);
-//        output.write(bytecode);
-//        output.close();
+        String classFileName = "bin/" + programName + ".class";
+        OutputStream output = new FileOutputStream(classFileName);
+        output.write(bytecode);
+        output.close();
 
         Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
         instance.run();
@@ -139,6 +141,32 @@ public class CodeGenVisitorTest {
     }
 
     @Test
+    public void testdecProg1() throws Exception {
+        String[] input = new String[]{
+                "decProg1 {",
+                "integer b boolean c",
+                "b <- 5 % 3;",
+                "b <- 15 % 10;",
+                "b <- 4 % 2;",
+                "b <- 8 % 7 % 5;",
+                "c <- true | true;",
+                "c <- true | false;",
+                "c <- false | true;",
+                "c <- false | false;",
+                "c <- true & true;",
+                "c <- true & false;",
+                "c <- false & true;",
+                "c <- false & false;",
+                "c <- false & false | true;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "2501truetruetruefalsetruefalsefalsefalsetrue");
+    }
+
+    @Test
     public void testIfStatementProg0() throws Exception {
         String[] input = new String[]{
                 "ifStatementProg0 integer a {",
@@ -235,5 +263,59 @@ public class CodeGenVisitorTest {
         String[] args = new String[0];
 
         assertProgramValidity(inputCode, args, "1true7false8false92false7false8false93false");
+    }
+
+    @Test
+    public void testSleepProg() throws Exception {
+        String fileName = "sleepProg";
+        String[] input = new String[]{
+                fileName + " {",
+                "sleep 2880;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        Scanner scanner = new Scanner(inputCode);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        Program program = (Program) parser.parse();
+        TypeCheckVisitor v = new TypeCheckVisitor();
+        program.visit(v, null);
+
+        CodeGenVisitor cv = new CodeGenVisitor(devel, grade, null);
+        byte[] bytecode = (byte[]) program.visit(cv, null);
+
+        String programName = program.getName();
+        String[] args = new String[0];
+        Runnable instance = CodeGenUtils.getInstance(programName, bytecode, args);
+        long start = System.currentTimeMillis();
+        instance.run();
+        long end = System.currentTimeMillis();
+        assertEquals("Expected program runtime atleast 2880ms, got " + (end - start) + "ms", true, (end - start) >= 2880);
+    }
+
+    @Test
+    public void testdecProgFromCompilerClass() throws Exception {
+        String[] input = new String[]{
+                "decProgFromCompilerClass integer a {",
+                "integer b boolean c boolean d",
+                "a <- 3;",
+                "b <- 4;",
+                "c <- false;",
+                "b <- 5;",
+                "d <- true;",
+                "a <- 6;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+
+        File currentDirectory = new File("./bin");
+        File sourceCode = File.createTempFile("decProgFromCompilerClass", null, currentDirectory);
+        sourceCode.deleteOnExit();
+
+        FileWriter fileWriter = new FileWriter(sourceCode);
+        fileWriter.write(inputCode);
+        fileWriter.close();
+        String[] args = new String[]{sourceCode.getAbsolutePath()};
+        Compiler.main(args);
     }
 }
