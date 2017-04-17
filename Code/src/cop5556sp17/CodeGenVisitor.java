@@ -547,7 +547,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-        assert false : "not yet implemented";
+        for (Expression expression : tuple.getExprList()) {
+            expression.visit(this, null);
+        }
         return null;
     }
 

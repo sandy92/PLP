@@ -123,6 +123,8 @@ public class TypeCheckVisitor implements ASTVisitor {
         } else if (op.isKind(Scanner.Kind.DIV)) {
             if (e0.getTypeName().isType(Type.TypeName.INTEGER) && e1.getTypeName().isType(Type.TypeName.INTEGER)) {
                 binaryExpression.setTypeName(Type.TypeName.INTEGER);
+            } else if (e0.getTypeName().isType(Type.TypeName.IMAGE) && e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                binaryExpression.setTypeName(Type.TypeName.IMAGE);
             } else {
                 throw new TypeCheckException("Invalid Binary Expression combination :: '" + e0.getTypeName() + "' '" + op.getText() + "' '" + e1.getTypeName() + "'");
             }
@@ -145,6 +147,8 @@ public class TypeCheckVisitor implements ASTVisitor {
         } else if (op.isKind(Scanner.Kind.MOD)) {
             if (e0.getTypeName().isType(Type.TypeName.INTEGER) && e1.getTypeName().isType(Type.TypeName.INTEGER)) {
                 binaryExpression.setTypeName(Type.TypeName.INTEGER);
+            } else if (e0.getTypeName().isType(Type.TypeName.IMAGE) && e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                binaryExpression.setTypeName(Type.TypeName.IMAGE);
             } else {
                 throw new TypeCheckException("Invalid Binary Expression combination :: '" + e0.getTypeName() + "' '" + op.getText() + "' '" + e1.getTypeName() + "'");
             }

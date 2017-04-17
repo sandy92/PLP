@@ -1598,6 +1598,52 @@ public class TypeCheckVisitorTest {
     }
 
     @Test
+    public void testBinaryExpr12() throws Exception {
+        String input = "p { image a image b \n a <- b / 3;}";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        ASTNode ast = parser.parse();
+        assertEquals(Program.class, ast.getClass());
+        Program program = (Program) ast;
+        Block block = program.getB();
+        List<Statement> statements = block.getStatements();
+        assertEquals(1, statements.size());
+        AssignmentStatement statement = (AssignmentStatement) statements.get(0);
+        Expression expression = statement.getE();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        program.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.IMAGE, binaryExpression.getTypeName());
+    }
+
+    @Test
+    public void testBinaryExpr13() throws Exception {
+        String input = "p { image a image b \n a <- b % 3;}";
+        Scanner scanner = new Scanner(input);
+        scanner.scan();
+        Parser parser = new Parser(scanner);
+        ASTNode ast = parser.parse();
+        assertEquals(Program.class, ast.getClass());
+        Program program = (Program) ast;
+        Block block = program.getB();
+        List<Statement> statements = block.getStatements();
+        assertEquals(1, statements.size());
+        AssignmentStatement statement = (AssignmentStatement) statements.get(0);
+        Expression expression = statement.getE();
+        assertEquals(BinaryExpression.class, expression.getClass());
+        BinaryExpression binaryExpression = (BinaryExpression) expression;
+
+        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+        program.visit(typeCheckVisitor, null);
+
+        assertEquals(Type.TypeName.IMAGE, binaryExpression.getTypeName());
+    }
+
+    @Test
     public void testBinaryExprError0() throws Exception {
         String input = "2 * true";
         Scanner scanner = new Scanner(input);
@@ -1662,29 +1708,6 @@ public class TypeCheckVisitorTest {
     @Test
     public void testBinaryExprError3() throws Exception {
         String input = "p { image a image b \n a <- 2 / b;}";
-        Scanner scanner = new Scanner(input);
-        scanner.scan();
-        Parser parser = new Parser(scanner);
-        ASTNode ast = parser.parse();
-        assertEquals(Program.class, ast.getClass());
-        Program program = (Program) ast;
-        Block block = program.getB();
-        List<Statement> statements = block.getStatements();
-        assertEquals(1, statements.size());
-        AssignmentStatement statement = (AssignmentStatement) statements.get(0);
-        Expression expression = statement.getE();
-        assertEquals(BinaryExpression.class, expression.getClass());
-        BinaryExpression binaryExpression = (BinaryExpression) expression;
-
-        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-        thrown.expect(TypeCheckVisitor.TypeCheckException.class);
-
-        program.visit(typeCheckVisitor, null);
-    }
-
-    @Test
-    public void testBinaryExprError4() throws Exception {
-        String input = "p { image a image b \n a <- a / 4;}";
         Scanner scanner = new Scanner(input);
         scanner.scan();
         Parser parser = new Parser(scanner);

@@ -44,7 +44,7 @@ public class PLPRuntimeImageOps {
         int w0 = i0.getWidth();
         int w1 = i1.getWidth();
         int h0 = i0.getHeight();
-        int h1 = i0.getHeight();
+        int h1 = i1.getHeight();
         int w = w0 <= w1 ? w0 : w1;
         int h = h0 <= h1 ? h0 : h1;
         BufferedImage dest = new BufferedImage(w, h, i0.getType());
@@ -74,7 +74,7 @@ public class PLPRuntimeImageOps {
         int w0 = i0.getWidth();
         int w1 = i1.getWidth();
         int h0 = i0.getHeight();
-        int h1 = i0.getHeight();
+        int h1 = i1.getHeight();
         int w = w0 <= w1 ? w0 : w1;
         int h = h0 <= h1 ? h0 : h1;
         BufferedImage dest = new BufferedImage(w, h, i0.getType());

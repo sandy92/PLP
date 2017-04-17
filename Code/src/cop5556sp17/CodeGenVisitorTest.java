@@ -5,12 +5,18 @@ import cop5556sp17.AST.Program;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStream;
+import java.net.URL;
 
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static org.junit.Assert.assertEquals;
 
 public class CodeGenVisitorTest {
@@ -18,6 +24,8 @@ public class CodeGenVisitorTest {
     static final boolean doPrint = true;
     boolean devel = false;
     boolean grade = true;
+
+    public ExpectedException thrown = ExpectedException.none();
 
     static void show(Object s) {
         if (doPrint) {
@@ -318,4 +326,463 @@ public class CodeGenVisitorTest {
         String[] args = new String[]{sourceCode.getAbsolutePath()};
         Compiler.main(args);
     }
+
+    @Test
+    public void testCopyImageFromURLProg() throws Exception {
+        String progName = "CopyImageFromURLProg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a integer i",
+                "i <- 9;",
+                "u -> a;",
+                "a <- a;",
+                "i <- 7;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "9copyimage7");
+    }
+
+    @Test
+    public void testFrameFromURLProg() throws Exception {
+        String progName = "FrameFromURLProg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a frame fr integer i",
+                "i <- 9;",
+                "u -> a -> fr;",
+                "i <- 7;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "9copyimage7");
+    }
+
+    @Test
+    public void testCopyImageFromFileProg() throws Exception {
+        String progName = "CopyImageFromFileProg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        URL url = new URL(imageUrl);
+        BufferedImage image = ImageIO.read(url);
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, "jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        ImageIO.write(image, "jpg", tempFile);
+
+        String[] input = new String[]{
+                progName + " file f {",
+                "image a integer i",
+                "i <- 9;",
+                "f -> a;",
+                "a <- a;",
+                "i <- 8;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "9copyimage8");
+    }
+
+    @Test
+    public void testFrameFromFileProg() throws Exception {
+        String progName = "FrameFromFileProg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        URL url = new URL(imageUrl);
+        BufferedImage image = ImageIO.read(url);
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, "jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        ImageIO.write(image, "jpg", tempFile);
+
+        String[] input = new String[]{
+                progName + " file f {",
+                "image a frame fr integer i",
+                "i <- 9;",
+                "f -> a -> fr;",
+                "i <- 8;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "9copyimage8");
+    }
+
+    @Test
+    public void testImageOps0() throws Exception {
+        String progName = "ImageOps0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b",
+                "u -> a;",
+                "b <- a + a;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "add");
+    }
+
+    @Test
+    public void testImageOps1() throws Exception {
+        String progName = "ImageOps1";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b",
+                "u -> a;",
+                "b <- a - a;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "sub");
+    }
+
+    @Test
+    public void testImageOps2() throws Exception {
+        String progName = "ImageOps2";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a;",
+                "b <- a * 2;",
+                "c <- 3 * a;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "mul");
+    }
+
+    @Test
+    public void testImageOps3() throws Exception {
+        String progName = "ImageOps0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b",
+                "u -> a;",
+                "b <- a / 2;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "div");
+    }
+
+    @Test
+    public void testImageOps4() throws Exception {
+        String progName = "ImageOps0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b",
+                "u -> a;",
+                "b <- a % 3;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "mod");
+    }
+
+    @Test
+    public void testConstantExpressionProg() throws Exception {
+        String progName = "ConstantExpressionProg";
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int width = (int) screenSize.getWidth();
+        int height = (int) screenSize.getHeight();
+
+        screenSize.setSize(250, 200);
+
+        String[] input = new String[]{
+                progName + " {",
+                "integer a integer b",
+                "a <- screenwidth;",
+                "b <- screenheight;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "getScreenwidth250getScreenheight200");
+
+        screenSize.setSize(width, height); // resetting to previous value
+    }
+
+
+    @Test
+    public void testIdentChainProgForIntegers() throws Exception {
+        String progName = "IdentChainProgForIntegers";
+
+        String[] input = new String[]{
+                progName + " {",
+                "integer a integer b",
+                "b <- 7;",
+                "a <- 12650;",
+                "a -> b;",
+                "b <- b;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[0];
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testIdentChainProgForWritingToFile() throws Exception {
+        // Cases for frame and image are already handled in the assignment test cases above
+        String progName = "IdentChainProgForWritingToFile";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, "jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        String[] input = new String[]{
+                progName + " url u, file f {",
+                "image i",
+                "u -> i -> f;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl, tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFilterOpChainProg0() throws Exception {
+        String progName = "FilterOpChainProg0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a -> blur -> b ;",
+                "u -> c |-> blur;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFilterOpChainProg1() throws Exception {
+        String progName = "FilterOpChainProg1";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a -> gray -> b ;",
+                "u -> c |-> gray;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFilterOpChainProg2() throws Exception {
+        String progName = "FilterOpChainProg2";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a -> convolve -> b ;",
+                "u -> c |-> convolve;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFilterOpChainErrorProg0() throws Exception {
+        String progName = "FilterOpChainErrorProg0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a |-> blur -> b ;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+        thrown.expect(RuntimeException.class);
+    }
+
+    @Test
+    public void testFilterOpChainErrorProg1() throws Exception {
+        String progName = "FilterOpChainErrorProg1";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a |-> gray -> b ;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+        thrown.expect(RuntimeException.class);
+    }
+
+    @Test
+    public void testFilterOpChainErrorProg2() throws Exception {
+        String progName = "FilterOpChainErrorProg2";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a image b image c",
+                "u -> a |-> convolve -> b ;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+        thrown.expect(RuntimeException.class);
+    }
+
+    @Test
+    public void testFrameOpChainProg0() throws Exception {
+        String progName = "FrameOpChainProg0";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a frame fr",
+                "u -> a -> fr -> show ;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFrameOpChainProg1() throws Exception {
+        String progName = "FrameOpChainProg1";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a frame fr",
+                "u -> a -> fr -> hide ;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "71265012650");
+    }
+
+    @Test
+    public void testFrameOpChainProg2() throws Exception {
+        String progName = "FrameOpChainProg2";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String[] input = new String[]{
+                progName + " url u {",
+                "image a frame fr integer i",
+                "i <- 9;",
+                "u -> a -> fr -> move (36, 87);",
+                "fr -> xloc -> i",
+                "i <- i",
+                "fr -> yloc -> i",
+                "i <- i",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "9movexloc36yloc87");
+    }
+
+    @Test
+    public void testImageOpChainProg() throws Exception {
+        String progName = "ImageOpChainProg";
+        BufferedImage image = new BufferedImage(45, 65, TYPE_INT_RGB);
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, "jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        String[] input = new String[]{
+                progName + " file f {",
+                "image a image b integer w integer h",
+                "w <- 8;",
+                "u -> a -> width -> w ;",
+                "w <- w;",
+                "h <- 8;",
+                "a -> height -> h ;",
+                "h <- h;",
+                "a -> scale (2) -> b;",
+                "b -> width -> w ;",
+                "w <- w;",
+                "b -> height -> h ;",
+                "h <- h;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "8width458height6590130");
+    }
+
+    // TODO remove
+    // String imageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png";
+    // String value = new String(Files.readAllBytes(Paths.get(args[0])));
+    // String[] args = new String[] { imageUrl, progName+"-file.png"};
+    // TODO does % and other ops apply to images
+    // TODO all image ops
+    // TODO read from file (extend this from read from URL)
+    // TODO read from URL and other
 }
