@@ -1,6 +1,8 @@
 package cop5556sp17;
 
+import com.sun.deploy.security.ValidationState;
 import cop5556sp17.AST.*;
+import cop5556sp17.AST.Type;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;
@@ -44,6 +46,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     break;
                 case BOOLEAN:
                     methodVisitor.visitLocalVariable(dec.getIdent().getText(), "Z", null, startLabel, endLabel, dec.getSlot());
+                    break;
+                case FRAME:
+                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), PLPRuntimeFrame.JVMDesc, null, startLabel, endLabel, dec.getSlot());
+                    break;
+                case IMAGE:
+                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), PLPRuntimeImageIO.BufferedImageDesc, null, startLabel, endLabel, dec.getSlot());
                     break;
                 default:
                     throw new RuntimeException("Invalid dec: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
@@ -285,6 +293,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     case INTEGER:
                         mv.visitInsn(IADD);
                         break;
+                    case IMAGE:
+                        if(e1.getTypeName().isType(Type.TypeName.IMAGE)) {
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "add", PLPRuntimeImageOps.addSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
+                        break;
                     default:
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
                 }
@@ -294,6 +309,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     case INTEGER:
                         mv.visitInsn(ISUB);
                         break;
+                    case IMAGE:
+                        if(e1.getTypeName().isType(Type.TypeName.IMAGE)) {
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "sub", PLPRuntimeImageOps.subSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
+                        break;
                     default:
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
                 }
@@ -301,7 +323,21 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
             case TIMES:
                 switch (e0.getTypeName()) {
                     case INTEGER:
-                        mv.visitInsn(IMUL);
+                        if(e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                            mv.visitInsn(IMUL);
+                        } else if(e1.getTypeName().isType(Type.TypeName.IMAGE)) {
+                            mv.visitInsn(SWAP);
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "mul", PLPRuntimeImageOps.mulSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
+                        break;
+                    case IMAGE:
+                        if(e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "mul", PLPRuntimeImageOps.mulSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
                         break;
                     default:
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
@@ -312,6 +348,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     case INTEGER:
                         mv.visitInsn(IDIV);
                         break;
+                    case IMAGE:
+                        if(e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "div", PLPRuntimeImageOps.divSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
+                        break;
                     default:
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
                 }
@@ -320,6 +363,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                 switch (e0.getTypeName()) {
                     case INTEGER:
                         mv.visitInsn(IREM);
+                        break;
+                    case IMAGE:
+                        if(e1.getTypeName().isType(Type.TypeName.INTEGER)) {
+                            mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "mod", PLPRuntimeImageOps.modSig, false);
+                        } else {
+                            throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos() + "; " + e1.getTypeName() + " at " + e1.getFirstToken().getLinePos());
+                        }
                         break;
                     default:
                         throw new RuntimeException("Unexpected Type: " + e0.getTypeName() + " at " + e0.getFirstToken().getLinePos());
@@ -358,6 +408,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
         for (Statement statement : block.getStatements()) {
             statement.visit(this, null);
+            if (statement instanceof BinaryChain) {
+                mv.visitInsn(POP);
+            }
         }
 
         return null;
@@ -371,7 +424,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
     @Override
     public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
-        assert false : "not yet implemented";
+        Scanner.Token token = constantExpression.getFirstToken();
+        switch (token.kind) {
+            case KW_SCREENWIDTH:
+                mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeFrame.JVMClassName, "getScreenWidth", PLPRuntimeFrame.getScreenWidthSig, false);
+                break;
+            case KW_SCREENHEIGHT:
+                mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeFrame.JVMClassName, "getScreenHeight", PLPRuntimeFrame.getScreenHeightSig, false);
+                break;
+            default:
+        }
         return null;
     }
 
@@ -446,6 +508,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     mv.visitInsn(SWAP);
                     mv.visitFieldInsn(PUTFIELD, className, dec.getIdent().getText(), "Z");
                     break;
+                case URL:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(SWAP);
+                    mv.visitFieldInsn(PUTFIELD, className, dec.getIdent().getText(), Type.TypeName.URL.getJVMTypeDesc());
+                    break;
+                case FILE:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(SWAP);
+                    mv.visitFieldInsn(PUTFIELD, className, dec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc());
+                    break;
                 default:
                     throw new RuntimeException("Invalid dec for assignment: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
             }
@@ -455,6 +527,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     mv.visitVarInsn(ISTORE, dec.getSlot());
                     break;
                 case BOOLEAN:
+                    mv.visitVarInsn(ISTORE, dec.getSlot());
+                    break;
+                case IMAGE:
+                    mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "copyImage", PLPRuntimeImageOps.copyImageSig, false);
+                    break;
+                case FRAME:
                     mv.visitVarInsn(ISTORE, dec.getSlot());
                     break;
                 default:
@@ -527,6 +605,25 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                 methodVisitor.visitInsn(AALOAD);
                 methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "parseBoolean", "(Ljava/lang/String;)Z", false);
                 methodVisitor.visitFieldInsn(PUTFIELD, className, paramDec.getIdent().getText(), "Z");
+                break;
+            case URL:
+                fieldVisitor = cw.visitField(ACC_PUBLIC, paramDec.getIdent().getText(), Type.TypeName.URL.getJVMTypeDesc(), null, null);
+                fieldVisitor.visitEnd();
+                methodVisitor.visitVarInsn(ALOAD, 0);
+                methodVisitor.visitVarInsn(ALOAD, 1);
+                methodVisitor.visitLdcInsn(argIndex);
+                methodVisitor.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "getURL", PLPRuntimeImageIO.getURLSig, false);
+                methodVisitor.visitFieldInsn(PUTFIELD, className, paramDec.getIdent().getText(), Type.TypeName.URL.getJVMTypeDesc());
+                break;
+            case FILE:
+                fieldVisitor = cw.visitField(ACC_PUBLIC, paramDec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc(), null, null);
+                fieldVisitor.visitEnd();
+                methodVisitor.visitVarInsn(ALOAD, 0);
+                methodVisitor.visitVarInsn(ALOAD, 1);
+                methodVisitor.visitLdcInsn(argIndex);
+                methodVisitor.visitInsn(AALOAD);
+                methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/io/File", "<init>", "(Ljava/lang/String;)V", false);
+                methodVisitor.visitFieldInsn(PUTFIELD, className, paramDec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc());
                 break;
             default:
                 throw new RuntimeException("Unexpected paramDec " + paramDec.getTypeName());

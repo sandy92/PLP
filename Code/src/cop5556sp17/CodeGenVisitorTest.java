@@ -22,10 +22,9 @@ import static org.junit.Assert.assertEquals;
 public class CodeGenVisitorTest {
 
     static final boolean doPrint = true;
+    public ExpectedException thrown = ExpectedException.none();
     boolean devel = false;
     boolean grade = true;
-
-    public ExpectedException thrown = ExpectedException.none();
 
     static void show(Object s) {
         if (doPrint) {
@@ -344,12 +343,12 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "9copyimage7");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")9readFromURL("+imageUrl+")copyImage7");
     }
 
     @Test
-    public void testFrameFromURLProg() throws Exception {
-        String progName = "FrameFromURLProg";
+    public void testSetFrameFromURLProg() throws Exception {
+        String progName = "SetFrameFromURLProg";
         String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
 
         String[] input = new String[]{
@@ -357,13 +356,14 @@ public class CodeGenVisitorTest {
                 "image a frame fr integer i",
                 "i <- 9;",
                 "u -> a -> fr;",
+                "u -> a -> fr;",
                 "i <- 7;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "9copyimage7");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")9readFromURL("+imageUrl+")createOrSetFramereadFromURL("+imageUrl+")createOrSetFrameshowImage7");
     }
 
     @Test
@@ -392,7 +392,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{tempFile.getAbsolutePath()};
 
-        assertProgramValidity(inputCode, args, "9copyimage8");
+        assertProgramValidity(inputCode, args, "9readFromURL("+tempFile.getName()+")blur8");
     }
 
     @Test
@@ -420,7 +420,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{tempFile.getAbsolutePath()};
 
-        assertProgramValidity(inputCode, args, "9copyimage8");
+        assertProgramValidity(inputCode, args, "9readFromFile("+tempFile.getName()+")createOrSetFrame8");
     }
 
     @Test
@@ -438,7 +438,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "add");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")addcopyImage");
     }
 
     @Test
@@ -456,7 +456,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "sub");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")subcopyImage");
     }
 
     @Test
@@ -475,7 +475,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "mul");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")mulcopyImagemulcopyImage");
     }
 
     @Test
@@ -493,7 +493,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "div");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")divcopyImage");
     }
 
     @Test
@@ -511,7 +511,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "mod");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")modcopyImage");
     }
 
     @Test
@@ -523,8 +523,6 @@ public class CodeGenVisitorTest {
         int width = (int) screenSize.getWidth();
         int height = (int) screenSize.getHeight();
 
-        screenSize.setSize(250, 200);
-
         String[] input = new String[]{
                 progName + " {",
                 "integer a integer b",
@@ -535,9 +533,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[0];
 
-        assertProgramValidity(inputCode, args, "getScreenwidth250getScreenheight200");
-
-        screenSize.setSize(width, height); // resetting to previous value
+        assertProgramValidity(inputCode, args, "getScreenWidth"+width+"getScreenHeight"+height);
     }
 
 
@@ -579,7 +575,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl, tempFile.getAbsolutePath()};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")createOrSetFrame");
     }
 
     @Test
@@ -591,13 +587,12 @@ public class CodeGenVisitorTest {
                 progName + " url u {",
                 "image a image b image c",
                 "u -> a -> blur -> b ;",
-                "u -> c |-> blur;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")blurOp");
     }
 
     @Test
@@ -615,7 +610,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")grayOpreadFromURL("+imageUrl+")grayOp");
     }
 
     @Test
@@ -627,13 +622,12 @@ public class CodeGenVisitorTest {
                 progName + " url u {",
                 "image a image b image c",
                 "u -> a -> convolve -> b ;",
-                "u -> c |-> convolve;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")convolve");
     }
 
     @Test
@@ -644,13 +638,13 @@ public class CodeGenVisitorTest {
         String[] input = new String[]{
                 progName + " url u {",
                 "image a image b image c",
-                "u -> a |-> blur -> b ;",
+                "u -> a |-> blur;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "");
         thrown.expect(RuntimeException.class);
     }
 
@@ -668,7 +662,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "");
         thrown.expect(RuntimeException.class);
     }
 
@@ -680,13 +674,13 @@ public class CodeGenVisitorTest {
         String[] input = new String[]{
                 progName + " url u {",
                 "image a image b image c",
-                "u -> a |-> convolve -> b ;",
+                "u -> a |-> convolve;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "");
         thrown.expect(RuntimeException.class);
     }
 
@@ -704,7 +698,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")createOrSetFrameshowImage");
     }
 
     @Test
@@ -721,7 +715,7 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "71265012650");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")createOrSetFramehideImage");
     }
 
     @Test
@@ -734,16 +728,37 @@ public class CodeGenVisitorTest {
                 "image a frame fr integer i",
                 "i <- 9;",
                 "u -> a -> fr -> move (36, 87);",
-                "fr -> xloc -> i",
-                "i <- i",
-                "fr -> yloc -> i",
-                "i <- i",
+                "fr -> xloc -> i;",
+                "i <- i;",
+                "fr -> yloc -> i;",
+                "i <- i;",
                 "}"
         };
         String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
-        assertProgramValidity(inputCode, args, "9movexloc36yloc87");
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")9readFromURL("+imageUrl+")createOrSetFramemoveFramegetX36getY87");
+    }
+
+    @Test
+    public void testWriteToFileProg() throws Exception {
+        String progName = "WriteToFileProg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, "jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        String[] input = new String[]{
+                progName + " url u, file f {",
+                "image a",
+                "u -> a -> gray -> f;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{imageUrl,tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")grayOpwrite("+tempFile.getName()+")");
     }
 
     @Test
@@ -759,7 +774,7 @@ public class CodeGenVisitorTest {
                 progName + " file f {",
                 "image a image b integer w integer h",
                 "w <- 8;",
-                "u -> a -> width -> w ;",
+                "f -> a -> width -> w ;",
                 "w <- w;",
                 "h <- 8;",
                 "a -> height -> h ;",
@@ -774,7 +789,29 @@ public class CodeGenVisitorTest {
         String inputCode = String.join("\n", input);
         String[] args = new String[]{tempFile.getAbsolutePath()};
 
-        assertProgramValidity(inputCode, args, "8width458height6590130");
+        assertProgramValidity(inputCode, args, "8readFromFile("+ tempFile.getName() +")45865scale90130");
+    }
+
+    @Test
+    public void testAddImage() throws Exception {
+        String progName = "addImage";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String inputCode = "addImage url u {image i image j image k frame f \nu -> i; \nu -> j; \n k <- i-j; k -> f -> show;  sleep 5; k <- k + i; k -> f -> show; \n}";
+        String[] args = new String[]{ imageUrl};
+
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")readFromURL("+imageUrl+")subcopyImagecreateOrSetFrameshowImageaddcopyImagecreateOrSetFrameshowImageshowImage");
+    }
+
+    @Test
+    public void testSubImage() throws Exception {
+        String progName = "subImage";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String inputCode = "subImage url u {image i image j image k frame f \nu -> i; \nu -> j; \n k <- i-j; k -> f -> show;\n}";
+        String[] args = new String[]{ imageUrl};
+
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")readFromURL("+imageUrl+")subcopyImagecreateOrSetFrameshowImage");
     }
 
     // TODO remove
@@ -785,4 +822,6 @@ public class CodeGenVisitorTest {
     // TODO all image ops
     // TODO read from file (extend this from read from URL)
     // TODO read from URL and other
+
+    // TODO does barrow apply only to gray and not to blur and convolve i.e., do we need to throw error for the other two
 }
