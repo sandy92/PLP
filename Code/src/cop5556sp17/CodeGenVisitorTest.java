@@ -814,6 +814,17 @@ public class CodeGenVisitorTest {
         assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")readFromURL("+imageUrl+")subcopyImagecreateOrSetFrameshowImage");
     }
 
+    @Test
+    public void testBarArrowGray() throws Exception {
+        String progName = "subImage";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String inputCode = "barArrowGray url u {image i frame f \nu -> i |-> gray -> f -> show;\n}";
+        String[] args = new String[]{ imageUrl};
+
+        assertProgramValidity(inputCode, args, "getUrl("+ imageUrl +")readFromURL("+imageUrl+")grayOpcreateOrSetFrameshowImage");
+    }
+
     // TODO remove
     // String imageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png";
     // String value = new String(Files.readAllBytes(Paths.get(args[0])));

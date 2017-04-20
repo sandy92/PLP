@@ -240,6 +240,7 @@ public class TypeCheckVisitor implements ASTVisitor {
             throw new TypeCheckException("Ident '" + ident.getText() + "' at " + ident.getLinePos() + " is either not declared or not visible in the current scope'");
         }
 
+        identChain.setDec(dec);
         identChain.setTypeName(dec.getTypeName());
         return identChain;
     }
