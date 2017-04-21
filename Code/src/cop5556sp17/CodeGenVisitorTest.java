@@ -555,6 +555,26 @@ public class CodeGenVisitorTest {
     }
 
     @Test
+    public void testIdentChainProgForIntegers2() throws Exception {
+        String progName = "IdentChainProgForIntegers2";
+
+        String[] input = new String[]{
+                progName + " integer a, integer b {",
+                "a <- a;",
+                "b <- b;",
+                "b <- 7;",
+                "a <- 12650;",
+                "a -> b;",
+                "b <- b;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
+        String[] args = new String[]{"3", "5"};
+
+        assertProgramValidity(inputCode, args, "3571265012650");
+    }
+
+    @Test
     public void testIdentChainProgForWritingToFile() throws Exception {
         // Cases for frame and image are already handled in the assignment test cases above
         String progName = "IdentChainProgForWritingToFile";
@@ -781,5 +801,36 @@ public class CodeGenVisitorTest {
         String[] args = new String[]{imageUrl};
 
         assertProgramValidity(inputCode, args, "getURL(" + imageUrl + ")readFromURL(" + imageUrl + ")grayOpcreateOrSetFrameshowImage");
+    }
+
+    @Test
+    public void testSleepImg() throws Exception {
+        String progName = "sleepImg";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        String inputCode = "sleepImg url u {image i frame f \nu -> i -> convolve -> f -> show;sleep 5;integer j j <- 42;\n}";
+        String[] args = new String[]{imageUrl};
+
+        assertProgramValidity(inputCode, args, "getURL(" + imageUrl + ")readFromURL(" + imageUrl + ")convolvecreateOrSetFrameshowImage42");
+    }
+
+    @Test
+    public void testAllTheOps() throws Exception {
+        String progName = "allTheOps";
+        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
+
+        URL url = new URL(imageUrl);
+        BufferedImage image = ImageIO.read(url);
+
+        File currentDirectory = new File(".");
+        File tempFile = File.createTempFile(progName, ".jpg", currentDirectory);
+        tempFile.deleteOnExit();
+
+        ImageIO.write(image, "jpg", tempFile);
+
+        String inputCode = "allTheOps file u {image i frame f \nu -> i -> gray -> convolve -> blur -> i -> f -> show;\n}";
+        String[] args = new String[]{tempFile.getAbsolutePath()};
+
+        assertProgramValidity(inputCode, args, "readFromFile(" + tempFile.getAbsolutePath() + ")grayOpconvolveblurOpcreateOrSetFrameshowImage");
     }
 }
