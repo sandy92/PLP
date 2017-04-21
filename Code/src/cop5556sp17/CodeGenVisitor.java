@@ -47,7 +47,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     methodVisitor.visitLocalVariable(dec.getIdent().getText(), "Z", null, startLabel, endLabel, dec.getSlot());
                     break;
                 case FRAME:
-                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), PLPRuntimeFrame.JVMDesc, null, startLabel, endLabel, dec.getSlot());
+                    methodVisitor.visitLocalVariable(dec.getIdent().getText(), Type.TypeName.FRAME.getJVMTypeDesc(), null, startLabel, endLabel, dec.getSlot());
                     break;
                 case IMAGE:
                     methodVisitor.visitLocalVariable(dec.getIdent().getText(), PLPRuntimeImageIO.BufferedImageDesc, null, startLabel, endLabel, dec.getSlot());
@@ -173,9 +173,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
         Scanner.Token arrow = binaryChain.getArrow();
 
         e0.visit(this, leftOfChain);
-        if(e1 instanceof FilterOpChain) {
+        if (e1 instanceof FilterOpChain) {
             // TODO verify this logic
-            if(arrow.kind == Scanner.Kind.BARARROW) {
+            if (arrow.kind == Scanner.Kind.BARARROW) {
                 mv.visitInsn(DUP);
             } else {
                 mv.visitInsn(ACONST_NULL);
@@ -454,6 +454,18 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
     public Object visitDec(Dec declaration, Object arg) throws Exception {
         declaration.setSlot(localVariableIndex);
         localVariableIndex++;
+        switch (declaration.getTypeName()) {
+            case FRAME:
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, declaration.getSlot());
+                break;
+            case IMAGE:
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, declaration.getSlot());
+                break;
+            default:
+                break;
+        }
         return null;
     }
 
@@ -528,10 +540,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                 case FILE:
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc());
+                    mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "readFromFile", PLPRuntimeImageIO.readFromFileDesc, false);
                     break;
                 case URL:
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), Type.TypeName.URL.getJVMTypeDesc());
+                    mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "readFromURL", PLPRuntimeImageIO.readFromURLSig, false);
                     break;
                 case FRAME:
                     mv.visitVarInsn(ALOAD, dec.getSlot());
@@ -554,39 +568,19 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     }
                     break;
                 case IMAGE:
-                    Label urlLabel = new Label();
-                    Label fileLabel = new Label();
-                    Label imageLabel = new Label();
-                    Label endLabel = new Label();
-                    mv.visitLabel(urlLabel);
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, Type.TypeName.URL.getJVMTypeDesc());
-                    mv.visitJumpInsn(IFNE, fileLabel);
-                    mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "readFromUrl", PLPRuntimeImageIO.readFromURLSig, false);
                     mv.visitVarInsn(ASTORE, dec.getSlot());
-                    mv.visitJumpInsn(GOTO, endLabel);
-                    mv.visitLabel(fileLabel);
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, Type.TypeName.FILE.getJVMTypeDesc());
-                    mv.visitJumpInsn(IFNE, imageLabel);
-                    mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "readFromFile", PLPRuntimeImageIO.readFromFileDesc, false);
-                    mv.visitVarInsn(ASTORE, dec.getSlot());
-                    mv.visitJumpInsn(GOTO, endLabel);
-                    mv.visitLabel(imageLabel);
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, Type.TypeName.IMAGE.getJVMTypeDesc());
-                    mv.visitJumpInsn(IFNE, endLabel);
-                    mv.visitVarInsn(ASTORE, dec.getSlot());
-                    mv.visitLabel(endLabel);
                     mv.visitVarInsn(ALOAD, dec.getSlot());
                     break;
                 case FILE:
-                    mv.visitVarInsn(ALOAD, dec.getSlot());
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc());
                     mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageIO.className, "write", PLPRuntimeImageIO.writeImageDesc, false);
                     break;
                 case FRAME:
                     mv.visitVarInsn(ALOAD, dec.getSlot());
                     mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeFrame.JVMClassName, "createOrSetFrame", PLPRuntimeFrame.createOrSetFrameSig, false);
+                    mv.visitInsn(DUP);
+                    mv.visitVarInsn(ASTORE, dec.getSlot());
                     break;
                 default:
                     throw new RuntimeException("Unexpected Type: " + typeName + " at " + identChain.getFirstToken().getLinePos());
@@ -609,6 +603,14 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), "Z");
                     break;
+                case URL:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), Type.TypeName.URL.getJVMTypeDesc());
+                    break;
+                case FILE:
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc());
+                    break;
                 default:
                     throw new RuntimeException("Invalid ident: " + identExpression.getFirstToken().getText() + " at " + identExpression.getFirstToken().getLinePos());
             }
@@ -619,6 +621,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     break;
                 case BOOLEAN:
                     mv.visitVarInsn(ILOAD, dec.getSlot());
+                    break;
+                case FRAME:
+                    mv.visitVarInsn(ALOAD, dec.getSlot());
+                    break;
+                case IMAGE:
+                    mv.visitVarInsn(ALOAD, dec.getSlot());
                     break;
                 default:
                     throw new RuntimeException("Invalid ident: " + identExpression.getFirstToken().getText() + " at " + identExpression.getFirstToken().getLinePos());
@@ -667,7 +675,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "copyImage", PLPRuntimeImageOps.copyImageSig, false);
                     break;
                 case FRAME:
-                    mv.visitVarInsn(ISTORE, dec.getSlot());
+                    mv.visitVarInsn(ASTORE, dec.getSlot());
                     break;
                 default:
                     throw new RuntimeException("Invalid dec for assignment: " + dec.getIdent().getText() + " at " + dec.getFirstToken().getLinePos());
@@ -769,6 +777,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                 fieldVisitor = cw.visitField(ACC_PUBLIC, paramDec.getIdent().getText(), Type.TypeName.FILE.getJVMTypeDesc(), null, null);
                 fieldVisitor.visitEnd();
                 methodVisitor.visitVarInsn(ALOAD, 0);
+                methodVisitor.visitTypeInsn(NEW, Type.TypeName.FILE.getJVMClass());
+                methodVisitor.visitInsn(DUP);
                 methodVisitor.visitVarInsn(ALOAD, 1);
                 methodVisitor.visitLdcInsn(argIndex);
                 methodVisitor.visitInsn(AALOAD);
