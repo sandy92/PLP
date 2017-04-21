@@ -174,7 +174,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
         e0.visit(this, leftOfChain);
         if (e1 instanceof FilterOpChain) {
-            // TODO verify this logic
             if (arrow.kind == Scanner.Kind.BARARROW) {
                 mv.visitInsn(DUP);
             } else {
@@ -673,6 +672,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
                     break;
                 case IMAGE:
                     mv.visitMethodInsn(INVOKESTATIC, PLPRuntimeImageOps.JVMName, "copyImage", PLPRuntimeImageOps.copyImageSig, false);
+                    mv.visitVarInsn(ASTORE, dec.getSlot());
                     break;
                 case FRAME:
                     mv.visitVarInsn(ASTORE, dec.getSlot());

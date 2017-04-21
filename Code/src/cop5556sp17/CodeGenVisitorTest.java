@@ -5,7 +5,6 @@ import cop5556sp17.AST.Program;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 public class CodeGenVisitorTest {
 
     static final boolean doPrint = true;
-    public ExpectedException thrown = ExpectedException.none();
     boolean devel = false;
     boolean grade = true;
 
@@ -631,60 +629,6 @@ public class CodeGenVisitorTest {
     }
 
     @Test
-    public void testFilterOpChainErrorProg0() throws Exception {
-        String progName = "FilterOpChainErrorProg0";
-        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
-
-        String[] input = new String[]{
-                progName + " url u {",
-                "image a image b image c",
-                "u -> a |-> blur;",
-                "}"
-        };
-        String inputCode = String.join("\n", input);
-        String[] args = new String[]{imageUrl};
-
-        assertProgramValidity(inputCode, args, "");
-        thrown.expect(RuntimeException.class);
-    }
-
-    @Test
-    public void testFilterOpChainErrorProg1() throws Exception {
-        String progName = "FilterOpChainErrorProg1";
-        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
-
-        String[] input = new String[]{
-                progName + " url u {",
-                "image a image b image c",
-                "u -> a |-> gray -> b ;",
-                "}"
-        };
-        String inputCode = String.join("\n", input);
-        String[] args = new String[]{imageUrl};
-
-        assertProgramValidity(inputCode, args, "");
-        thrown.expect(RuntimeException.class);
-    }
-
-    @Test
-    public void testFilterOpChainErrorProg2() throws Exception {
-        String progName = "FilterOpChainErrorProg2";
-        String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
-
-        String[] input = new String[]{
-                progName + " url u {",
-                "image a image b image c",
-                "u -> a |-> convolve;",
-                "}"
-        };
-        String inputCode = String.join("\n", input);
-        String[] args = new String[]{imageUrl};
-
-        assertProgramValidity(inputCode, args, "");
-        thrown.expect(RuntimeException.class);
-    }
-
-    @Test
     public void testFrameOpChainProg0() throws Exception {
         String progName = "FrameOpChainProg0";
         String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
@@ -770,6 +714,8 @@ public class CodeGenVisitorTest {
         File tempFile = File.createTempFile(progName, ".jpg", currentDirectory);
         tempFile.deleteOnExit();
 
+        ImageIO.write(image, "jpg", tempFile);
+
         String[] input = new String[]{
                 progName + " file f {",
                 "image a image b integer w integer h",
@@ -797,7 +743,19 @@ public class CodeGenVisitorTest {
         String progName = "addImage";
         String imageUrl = "https://i.ytimg.com/vi/ySTQk6updjQ/hqdefault.jpg?custom=true&w=336&h=188&stc=true&jpg444=true&jpgq=90&sp=68&sigh=zL6XTS6LOp88YKMB_oJyLBKgJgA";
 
-        String inputCode = "addImage url u {image i image j image k frame f \nu -> i; \nu -> j; \n k <- i-j; k -> f -> show;  sleep 5; k <- k + i; k -> f -> show; \n}";
+        String[] input = new String[]{
+                progName + " url u {",
+                "image i image j image k frame f",
+                "u -> i;",
+                "u -> j;",
+                "k <- i-j;",
+                "k -> f -> show;",
+                "sleep 5;",
+                "k <- k + i;",
+                "k -> f -> show;",
+                "}"
+        };
+        String inputCode = String.join("\n", input);
         String[] args = new String[]{imageUrl};
 
         assertProgramValidity(inputCode, args, "getURL(" + imageUrl + ")readFromURL(" + imageUrl + ")readFromURL(" + imageUrl + ")subcopyImagecreateOrSetFrameshowImageaddcopyImagecreateOrSetFrameshowImageshowImage");
@@ -824,15 +782,4 @@ public class CodeGenVisitorTest {
 
         assertProgramValidity(inputCode, args, "getURL(" + imageUrl + ")readFromURL(" + imageUrl + ")grayOpcreateOrSetFrameshowImage");
     }
-
-    // TODO remove
-    // String imageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png";
-    // String value = new String(Files.readAllBytes(Paths.get(args[0])));
-    // String[] args = new String[] { imageUrl, progName+"-file.png"};
-    // TODO does % and other ops apply to images
-    // TODO all image ops
-    // TODO read from file (extend this from read from URL)
-    // TODO read from URL and other
-
-    // TODO does barrow apply only to gray and not to blur and convolve i.e., do we need to throw error for the other two
 }
